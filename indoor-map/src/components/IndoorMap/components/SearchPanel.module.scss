@@ -1,0 +1,344 @@
+﻿@use '../../../styles/variables' as *;
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: rgba(17, 17, 17, 0.97);
+  border-right: 1px solid rgba(224, 64, 251, 0.12);
+  overflow: hidden;
+}
+
+// ── Header ───────────────────────────────────────────────────────────────────
+.header {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  padding: $space-4 $space-5;
+  border-bottom: 1px solid rgba(224, 64, 251, 0.1);
+  flex-shrink: 0;
+}
+
+.buildingIcon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.buildingName {
+  font-family: $font-sans;
+  font-size: $fs-sm;
+  font-weight: $fw-semi;
+  color: $text;
+  letter-spacing: 0.3px;
+}
+
+.buildingFloor {
+  font-family: $font-mono;
+  font-size: $fs-xs;
+  color: $pink;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+// ── Route inputs ─────────────────────────────────────────────────────────────
+.routeInputs {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+  padding: $space-4 $space-5;
+  border-bottom: 1px solid rgba(224, 64, 251, 0.1);
+  flex-shrink: 0;
+}
+
+.routeField {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  width: 100%;
+  padding: $space-3 $space-3;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(224, 64, 251, 0.12);
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color $duration-fast $ease-smooth,
+              background $duration-fast $ease-smooth;
+
+  &:hover {
+    background: rgba(224, 64, 251, 0.06);
+    border-color: rgba(224, 64, 251, 0.3);
+  }
+
+  &.activeField {
+    border-color: rgba(224, 64, 251, 0.55);
+    background: rgba(224, 64, 251, 0.08);
+    box-shadow: 0 0 0 2px rgba(224, 64, 251, 0.12);
+  }
+
+  &.filled {
+    background: rgba(224, 64, 251, 0.05);
+  }
+}
+
+.fieldDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.fieldText {
+  flex: 1;
+  font-family: $font-sans;
+  font-size: $fs-sm;
+  color: $text-dim;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.routeField.filled .fieldText {
+  color: $text;
+}
+
+.fieldIcon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.swapBtn {
+  align-self: center;
+  background: none;
+  border: 1px solid rgba(224, 64, 251, 0.18);
+  border-radius: 6px;
+  width: 28px;
+  height: 22px;
+  font-size: 0.85rem;
+  color: $pink;
+  cursor: pointer;
+  transition: background $duration-fast $ease-smooth;
+
+  &:hover {
+    background: rgba(224, 64, 251, 0.1);
+  }
+}
+
+.clearBtn {
+  align-self: flex-end;
+  background: none;
+  border: none;
+  font-family: $font-mono;
+  font-size: $fs-xs;
+  color: $text-mute;
+  cursor: pointer;
+  padding: $space-1 0;
+  transition: color $duration-fast $ease-smooth;
+
+  &:hover { color: $red; }
+}
+
+// ── Hint ──────────────────────────────────────────────────────────────────────
+.hint {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-2 $space-5;
+  font-family: $font-sans;
+  font-size: $fs-xs;
+  color: $text-mute;
+  background: rgba(224, 64, 251, 0.03);
+  border-bottom: 1px solid rgba(224, 64, 251, 0.07);
+  flex-shrink: 0;
+}
+
+.hintDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+// ── Search ────────────────────────────────────────────────────────────────────
+.searchWrap {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-3 $space-4;
+  margin: $space-3 $space-4 0;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(224, 64, 251, 0.12);
+  border-radius: 8px;
+  flex-shrink: 0;
+  transition: border-color $duration-fast $ease-smooth;
+
+  &:focus-within {
+    border-color: rgba(224, 64, 251, 0.45);
+    background: rgba(224, 64, 251, 0.05);
+  }
+}
+
+.searchIcon {
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.searchInput {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  font-family: $font-sans;
+  font-size: $fs-sm;
+  color: $text;
+  min-width: 0;
+
+  &::placeholder {
+    color: $text-mute;
+  }
+}
+
+.clearSearch {
+  background: none;
+  border: none;
+  color: $text-mute;
+  cursor: pointer;
+  font-size: $fs-sm;
+  padding: 0;
+  flex-shrink: 0;
+
+  &:hover { color: $text; }
+}
+
+// ── Categories ───────────────────────────────────────────────────────────────
+.categories {
+  display: flex;
+  gap: $space-1;
+  padding: $space-3 $space-4;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex-shrink: 0;
+
+  &::-webkit-scrollbar { display: none; }
+}
+
+.catBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(224, 64, 251, 0.14);
+  background: transparent;
+  font-family: $font-mono;
+  font-size: 10px;
+  color: $text-mute;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all $duration-fast $ease-smooth;
+
+  &:hover {
+    border-color: rgba(224, 64, 251, 0.35);
+    color: $pink;
+  }
+
+  &.catActive {
+    background: rgba(224, 64, 251, 0.14);
+    border-color: $pink;
+    color: $pink;
+  }
+}
+
+// ── POI list ─────────────────────────────────────────────────────────────────
+.list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 0 $space-4;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(224, 64, 251, 0.18) transparent;
+
+  &::-webkit-scrollbar       { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: rgba(224, 64, 251, 0.18); border-radius: 2px; }
+}
+
+.floorDivider {
+  padding: $space-2 $space-5;
+  font-family: $font-mono;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: $text-mute;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(224, 64, 251, 0.08);
+  margin-top: $space-2;
+}
+
+.poiRow {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  width: 100%;
+  padding: $space-3 $space-5;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background $duration-fast $ease-smooth;
+
+  &:hover {
+    background: rgba(224, 64, 251, 0.05);
+  }
+
+  &.poiOrigin { background: rgba(76, 175, 80, 0.07); }
+  &.poiDest   { background: rgba(244, 67, 54, 0.07); }
+}
+
+.poiIcon {
+  font-size: 1.2rem;
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.poiInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.poiLabel {
+  font-family: $font-sans;
+  font-size: $fs-sm;
+  font-weight: $fw-med;
+  color: $text;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.poiDesc {
+  font-family: $font-sans;
+  font-size: 10px;
+  color: $text-mute;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.poiTag {
+  font-family: $font-mono;
+  font-size: 9px;
+  font-weight: $fw-bold;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.empty {
+  padding: $space-8 $space-5;
+  text-align: center;
+  font-family: $font-mono;
+  font-size: $fs-xs;
+  color: $text-mute;
+}

@@ -1,0 +1,60 @@
+/* Reset: remove default margin, padding, and ensure border-box sizing everywhere */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Theme tokens ──────────────────────────────────────────────────────────── */
+/* CSS custom properties for the light theme (default).
+   Every colour used in the app references one of these variables so that
+   switching to dark mode only requires overriding them in [data-theme="dark"]. */
+:root {
+  --bg-app:         #eeeeee;
+  --card:           #ffffff;
+  --header-bg:      #ffffff;
+  --map-bg:         #ffffff;
+  --text:           #222222;
+  --text-dim:       #444444;
+  --nav-link:       #555555;
+  --muted:          #888888;
+  --divider:        #f0f0f0;
+  --input-bg:       #fafafa;
+  --steps-bg:       #fdfaff;
+  --steps-hd:       #fce4ff;
+  --legend-unavail: #b0b0b0;
+  --handle-bar:     #dddddd;
+  --pink-hover:     #fce4ff;
+  --check-bg:       #ffffff;
+  --sheet-bg:       #ffffff;
+}
+
+/* Dark theme token overrides — applied when data-theme="dark" is set on <html> */
+[data-theme="dark"] {
+  --bg-app:         #111111;
+  --card:           #1c1c1c;
+  --header-bg:      #181818;
+  --map-bg:         #1a1a1a;
+  --text:           #e0e0e0;
+  --text-dim:       #cccccc;
+  --nav-link:       #999999;
+  --muted:          #666666;
+  --divider:        #2a2a2a;
+  --input-bg:       #232323;
+  --steps-bg:       #1c1030;
+  --steps-hd:       #2d1240;
+  --legend-unavail: #555555;
+  --handle-bar:     #444444;
+  --pink-hover:     #2d1240;
+  --check-bg:       #2a2a2a;
+  --sheet-bg:       #1c1c1c;
+}
+
+/* Base styles for the page: full height, themed background/text, smooth font rendering */
+html, body, #root {
+  width: 100%;
+  min-height: 100%;
+  background: var(--bg-app);
+  color: var(--text);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Animate background and text colour when the theme toggles */
+  transition: background 250ms, color 250ms;
+}

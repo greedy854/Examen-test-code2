@@ -1,0 +1,55 @@
+// Outer container for the SVG map — fills the parent, clips overflow, and shows a grab cursor
+.wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--map-bg);
+  cursor: grab;
+  transition: background 250ms;
+  // Switch to grabbing cursor while actively dragging
+  &:active { cursor: grabbing; }
+}
+
+// The SVG element itself — fills the wrapper and blocks text selection during drag
+.svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  user-select: none;
+}
+
+// ── Zoom controls ─────────────────────────────────────────────────────────────
+// Absolute column of zoom/reset buttons pinned to the bottom-right of the map
+.zoom {
+  position: absolute;
+  bottom: 0.5em;
+  right: 0.5em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1875em;
+  z-index: 2;
+}
+
+// Individual zoom button (+, −, reset ⊡)
+.zBtn {
+  width: 1.625em;
+  height: 1.625em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--card);
+  border: 0.094em solid #e0b0f0;
+  border-radius: 0.25em;
+  color: #e040fb;
+  font-size: 0.875em;
+  cursor: pointer;
+  transition: all 120ms;
+
+  &:hover {
+    background: var(--pink-hover);
+    border-color: #e040fb;
+  }
+  // Slightly darker background while the button is pressed
+  &:active { background: var(--steps-hd); }
+}

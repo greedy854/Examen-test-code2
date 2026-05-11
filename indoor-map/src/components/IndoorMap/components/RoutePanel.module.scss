@@ -1,0 +1,146 @@
+﻿@use '../../../styles/variables' as *;
+
+.panel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(17, 17, 17, 0.97);
+  border-top: 1px solid rgba(224, 64, 251, 0.2);
+  backdrop-filter: blur(16px);
+  max-height: 52%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(224, 64, 251, 0.18) transparent;
+  z-index: 5;
+
+  &::-webkit-scrollbar       { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: rgba(224, 64, 251, 0.18); border-radius: 2px; }
+}
+
+// ── Summary ──────────────────────────────────────────────────────────────────
+.summary {
+  padding: $space-4 $space-6;
+  border-bottom: 1px solid rgba(224, 64, 251, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-4;
+  flex-wrap: wrap;
+}
+
+.summaryRoute {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  flex-wrap: wrap;
+}
+
+.summaryPoi {
+  font-family: $font-sans;
+  font-size: $fs-sm;
+  font-weight: $fw-semi;
+}
+
+.summaryArrow {
+  color: $text-mute;
+  font-size: $fs-base;
+}
+
+.summaryMeta {
+  display: flex;
+  gap: $space-2;
+  flex-wrap: wrap;
+}
+
+.metaTag {
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(224, 64, 251, 0.18);
+  font-family: $font-mono;
+  font-size: $fs-xs;
+  color: $text-dim;
+  background: rgba(224, 64, 251, 0.07);
+}
+
+// ── Floor tabs ───────────────────────────────────────────────────────────────
+.floorTabs {
+  display: flex;
+  gap: $space-2;
+  padding: $space-3 $space-6;
+  border-bottom: 1px solid rgba(224, 64, 251, 0.08);
+}
+
+.floorTab {
+  padding: $space-1 $space-4;
+  border-radius: 6px;
+  border: 1px solid rgba(224, 64, 251, 0.14);
+  background: transparent;
+  font-family: $font-mono;
+  font-size: $fs-xs;
+  color: $text-mute;
+  cursor: pointer;
+  transition: all $duration-fast $ease-smooth;
+
+  &:hover { border-color: rgba(224, 64, 251, 0.35); color: $pink; }
+
+  &.floorTabActive {
+    border-color: $pink;
+    background: rgba(224, 64, 251, 0.12);
+    color: $pink;
+  }
+}
+
+// ── Steps ────────────────────────────────────────────────────────────────────
+.steps {
+  padding: $space-3 $space-6 $space-6;
+  display: flex;
+  flex-direction: column;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: $space-4;
+  min-height: 40px;
+}
+
+.stepLeft {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  width: 28px;
+  padding-top: 2px;
+}
+
+.stepIcon {
+  font-size: 1rem;
+  line-height: 1;
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.stepLine {
+  width: 1.5px;
+  flex: 1;
+  min-height: 14px;
+  background: rgba(224, 64, 251, 0.18);
+  margin: $space-1 0;
+}
+
+.stepText {
+  font-family: $font-sans;
+  font-size: $fs-sm;
+  color: $text-dim;
+  padding-top: 2px;
+  line-height: 1.5;
+}
+
+// Step type overrides
+.step_start .stepText    { color: $text; font-weight: $fw-med; }
+.step_arrive .stepText   { color: $pink; font-weight: $fw-semi; }
+.step_elevator .stepText { color: $amber; }
+.step_enter .stepText    { color: $text; }

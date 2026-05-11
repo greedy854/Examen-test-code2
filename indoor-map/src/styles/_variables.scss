@@ -1,0 +1,95 @@
+﻿// ── Mediacollege Amsterdam — Design Tokens ────────────────────────────────────
+
+// Backgrounds
+$bg:        #111111;
+$surface:   #1a1a1a;
+$surface2:  #222222;
+$surface3:  #2a2a2a;
+
+// Borders
+$border:    #2e2e2e;
+$border2:   #3a3a3a;
+
+// Brand — roze
+$pink:         #e040fb;
+$pink-dim:     rgba(224, 64, 251, 0.12);
+$pink-mid:     rgba(224, 64, 251, 0.22);
+$pink-glow:    rgba(224, 64, 251, 0.38);
+$pink-hover:   #f06fff;
+
+// Rooms
+$room-fill:    #1e0928;
+$room-stroke:  #6a1080;
+$room-text:    #c060e0;
+
+// Status
+$green:  #4caf50;
+$red:    #f44336;
+$amber:  #ff9800;
+
+// Text
+$text:      #f0f0f0;
+$text-dim:  #888888;
+$text-mute: #555555;
+
+// Typography
+$font-body: 'DM Sans', system-ui, sans-serif;
+$font-mono: 'Space Mono', 'Courier New', monospace;
+
+// Spacing
+$s1: 4px;
+$s2: 8px;
+$s3: 12px;
+$s4: 16px;
+$s5: 20px;
+$s6: 24px;
+$s8: 32px;
+
+// Font sizes
+$fs-xs:   11px;
+$fs-sm:   13px;
+$fs-base: 15px;
+$fs-lg:   17px;
+
+// Font weights
+$fw-light:  300;
+$fw-reg:    400;
+$fw-med:    500;
+$fw-semi:   600;
+$fw-bold:   700;
+
+// Motion
+$ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+$ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+$fast: 150ms;
+$base: 280ms;
+
+// Header height
+$header-h: 56px;
+
+// Breakpoints
+$bp-sm: 640px;
+$bp-md: 768px;
+$bp-lg: 1024px;
+
+// ── Aliases (used by component SCSS modules) ──────────────────────────────────
+$color-primary:        $pink;
+$color-accent:         $amber;
+$color-danger:         $red;
+$color-text-primary:   $text;
+$color-text-secondary: $text-dim;
+$color-text-muted:     $text-mute;
+
+$font-sans:      $font-body;
+
+$space-1: $s1;
+$space-2: $s2;
+$space-3: $s3;
+$space-4: $s4;
+$space-5: $s5;
+$space-6: $s6;
+$space-8: $s8;
+
+$fw-medium:     $fw-med;
+$duration-fast: $fast;
+$ease-smooth:   $ease-out;

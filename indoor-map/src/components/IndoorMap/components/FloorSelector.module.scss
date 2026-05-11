@@ -1,0 +1,38 @@
+// Vertical stack of floor buttons displayed in the narrow column beside the map
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+  padding: 0.375em 0.25em;
+}
+
+// Individual floor button (e.g. "BG", "1e", "2e", "3e")
+.btn {
+  width: 1.75em;
+  height: 1.75em;
+  border-radius: 0.25em;
+  border: 0.094em solid #e0b0f0;
+  background: var(--card);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.625em;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 120ms;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  // Highlight border and text on hover (only when not already active)
+  &:hover:not(.active) {
+    border-color: #e040fb;
+    color: #e040fb;
+  }
+
+  // Solid pink background for the currently selected floor
+  &.active {
+    background: #e040fb;
+    border-color: #e040fb;
+    color: #fff;
+  }
+}

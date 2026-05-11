@@ -1,0 +1,1986 @@
+// ── Mediacollege Amsterdam — Theme-aware ──────────────────────────────────────
+// Shared colour variables used throughout this file
+$pink:   #e040fb;
+$border: #e8b4f8;
+$green:  #4caf50;
+$red:    #f44336;
+
+// Root app shell — full-height flex column, background comes from the theme token
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--bg-app);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  transition: background 250ms;
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+// Two-row header: top row (logo + nav + icons) and sub-bar (building tabs + tools).
+// The sub-bar scrolls horizontally on narrow screens so nothing overflows.
+.header {
+  background: var(--header-bg);
+  border-bottom: 0.0625em solid var(--divider);
+  transition: background 250ms, border-color 250ms;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+// Top row: three-column CSS grid so the nav is always perfectly centred,
+// regardless of how wide the logo or icon group is.
+//   col 1 (1fr) → logo, left-aligned
+//   col 2 (auto) → nav links, centred
+//   col 3 (1fr) → icon buttons, right-aligned
+.hRow {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 0 1.25em;
+  height: 3em;
+
+  @media (max-width: 37.5em) {
+    // On mobile collapse to logo + icons only (nav is hidden via .nav rule)
+    grid-template-columns: auto 1fr auto;
+    padding: 0 0.75em;
+    height: 2.75em;
+  }
+}
+
+// Sub-bar: building switcher on the left, tool buttons on the right.
+// Scrolls horizontally on mobile so all tools are always reachable.
+.hSubRow {
+  display: flex;
+  align-items: center;
+  padding: 0.3125em 1.25em;
+  gap: 0.5em;
+  border-top: 0.0625em solid var(--divider);
+  background: var(--input-bg);
+  overflow-x: auto;
+  scrollbar-width: none;
+  transition: background 250ms;
+  &::-webkit-scrollbar { display: none; }
+
+  @media (max-width: 37.5em) {
+    padding: 0.3125em 0.75em;
+  }
+}
+
+// Flex spacer — grows to fill available space, pushing siblings to the edges
+.hSpacer { flex: 1; min-width: 0; }
+
+// Group of tool buttons in the sub-bar; uses a subtle pill background
+.hTools {
+  display: flex;
+  align-items: center;
+  gap: 0.125em;
+  flex-shrink: 0;
+}
+
+// Individual tool button in the sub-bar (emoji + optional text label)
+.hToolBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.3125em;
+  padding: 0.3125em 0.625em;
+  border: none;
+  border-radius: 0.375em;
+  background: none;
+  font-size: 0.8125em;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  white-space: nowrap;
+  transition: background 120ms, color 120ms;
+
+  &:hover {
+    background: var(--pink-hover);
+    color: $pink;
+  }
+}
+
+// Text label inside a tool button — hidden on mobile to save space
+.hBtnLabel {
+  @media (max-width: 37.5em) { display: none; }
+}
+
+// Tool button variant — green tint when the guided tour is active
+.hToolBtnGreen {
+  color: #2e7d32;
+  background: rgba(76, 175, 80, 0.12);
+  &:hover { background: rgba(76, 175, 80, 0.22); color: #1b5e20; }
+}
+
+// Tool button variant — pink tint when the demo is running
+.hToolBtnPink {
+  color: $pink;
+  background: rgba(224, 64, 251, 0.1);
+  &:hover { background: rgba(224, 64, 251, 0.2); }
+}
+
+// Row of icon buttons — sits in grid column 3, pushed to the right
+.hIcons {
+  display: flex;
+  align-items: center;
+  gap: 0.25em;
+  justify-self: end; // grid: align to right edge of col 3
+}
+
+// Single SVG icon button (theme, access, kiosk)
+// No border by default — clean look; a subtle background appears on hover
+.hIconBtn {
+  width: 1.875em;
+  height: 1.875em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 0.375em;
+  color: var(--text-dim);
+  cursor: pointer;
+  flex-shrink: 0;
+  line-height: 1;
+  transition: background 120ms, color 120ms, transform 150ms;
+
+  svg { display: block; }
+
+  &:hover {
+    background: var(--pink-hover);
+    color: $pink;
+    transform: scale(1.1);
+  }
+}
+
+// Applied to the accessibility button when the mode is active
+.hIconBtnOn {
+  background: rgba(76, 175, 80, 0.12);
+  color: #2e7d32;
+  &:hover { background: rgba(76, 175, 80, 0.22); color: #1b5e20; transform: scale(1.1); }
+}
+
+// Thin vertical line separating settings icons from the help button
+.hIconDivider {
+  display: block;
+  width: 0.0625em;
+  height: 1.25em;
+  background: var(--divider);
+  flex-shrink: 0;
+  margin: 0 0.125em;
+}
+
+// The ? help button — slightly more prominent than the other icon buttons
+// so visitors notice it, but still subtle enough not to distract
+.hHelpBtn {
+  width: 1.875em;
+  height: 1.875em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--input-bg);
+  border: 0.094em solid var(--divider);
+  border-radius: 50%; // circle makes the ? feel like a standard help indicator
+  color: var(--muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  line-height: 1;
+  transition: all 150ms;
+
+  svg { display: block; }
+
+  &:hover {
+    border-color: $pink;
+    background: var(--pink-hover);
+    color: $pink;
+    transform: scale(1.1);
+  }
+}
+
+// Language toggle button — shows "NL" or "EN" as a small monospace pill
+// Uses text instead of a flag emoji for a cleaner, more typographic look
+.hLangBtn {
+  height: 1.875em;
+  padding: 0 0.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 0.094em solid var(--divider);
+  border-radius: 0.25em;
+  font-size: 0.6875em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  cursor: pointer;
+  flex-shrink: 0;
+  font-family: 'Space Mono', monospace;
+  transition: border-color 120ms, color 120ms, background 120ms;
+  &:hover { border-color: $pink; color: $pink; background: var(--pink-hover); }
+}
+
+// ── Logo ──────────────────────────────────────────────────────────────────────
+// Flex row that groups the pink SVG badge and the wordmark text.
+// justify-self: start keeps it pinned to the left inside the grid column.
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5625em;
+  text-decoration: none;
+  flex-shrink: 0;
+  justify-self: start;
+}
+
+// Wrapper for the SVG badge; adds a purple glow drop-shadow
+.logoMark {
+  flex-shrink: 0;
+  line-height: 0;
+  filter: drop-shadow(0 0.125em 0.375em rgba(224,64,251,0.35));
+}
+
+// Stacks "Mediacollege" and "Amsterdam" vertically
+.logoWords {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+// Large bold school name in the logo
+.logoName {
+  font-size: 0.9375em;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.025em;
+  transition: color 250ms;
+}
+
+// Small pink city label below the school name
+.logoCity {
+  font-size: 0.625em;
+  font-weight: 500;
+  color: #e040fb;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+// Horizontal nav link row in the header
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5em;
+}
+
+// Individual navigation link — turns pink on hover
+.navLink {
+  font-size: 0.875em;
+  color: var(--nav-link);
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 150ms;
+  user-select: none;
+  white-space: nowrap;
+  &:hover { color: $pink; }
+}
+
+// Applied to the currently active nav link
+.navActive {
+  color: $pink;
+  font-weight: 500;
+}
+
+// ── Theme toggle ──────────────────────────────────────────────────────────────
+// Small icon button that switches between light and dark mode
+.themeBtn {
+  background: none;
+  border: 0.094em solid var(--divider);
+  border-radius: 0.375em;
+  width: 2em;
+  height: 2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9375em;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 120ms, background 120ms, transform 200ms;
+  line-height: 1;
+  &:hover { border-color: $pink; background: rgba(224,64,251,0.08); transform: scale(1.15); }
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
+// Page body below the header; centres the card and legend vertically
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.25em 1em 2em;
+  gap: 1em;
+}
+
+// ── Card ──────────────────────────────────────────────────────────────────────
+// White rounded container that holds the map, route box, search, and POI grid
+.card {
+  background: var(--card);
+  border-radius: 0.25em;
+  width: 100%;
+  max-width: 60em;
+  overflow: hidden;
+  box-shadow: 0 0.0625em 0.25em rgba(0,0,0,0.1);
+  transition: background 250ms;
+  position: relative;
+}
+
+// Small muted label shown above the map canvas
+.mapTitle {
+  font-size: 0.6875em;
+  color: var(--muted);
+  padding: 0.5em 0.75em 0;
+  letter-spacing: 0.01875em;
+}
+
+// ── Map row ───────────────────────────────────────────────────────────────────
+// Horizontal strip that contains the map canvas and the floor selector column
+.mapRow {
+  display: flex;
+  align-items: stretch;
+  height: 27.5em;
+  border-bottom: 0.0625em solid #f0e4f8;
+}
+
+// Flex-grow wrapper around the SVG map; min-width:0 prevents flex overflow
+.mapWrap {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+}
+
+// Narrow column on the right of the map that holds the floor selector buttons
+.floorCol {
+  width: 2.375em;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-left: 0.0625em solid #f0e4f8;
+  background: var(--input-bg);
+  transition: background 250ms;
+}
+
+// ── Route box ─────────────────────────────────────────────────────────────────
+// Pink-bordered row with "Vanaf" and "Naar" buttons for picking route endpoints
+.routeBox {
+  display: flex;
+  align-items: center;
+  margin: 0.625em 0.75em 0;
+  border: 0.094em solid $pink;
+  border-radius: 0.375em;
+  overflow: hidden;
+  position: relative;
+}
+
+// One half of the route box (origin or destination); highlights on hover or active selection
+.routeField {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  flex: 1;
+  padding: 0.625em 0.875em;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 120ms;
+
+  &:hover { background: var(--pink-hover); }
+  &.routeFieldActive { background: var(--pink-hover); }
+}
+
+// "Vanaf" / "Naar" label inside the route field
+.routeLabel {
+  font-size: 0.8125em;
+  font-weight: 600;
+  color: var(--text);
+  min-width: 2.5em;
+  transition: color 250ms;
+}
+
+// Displays the selected POI name, or "Locatie" as placeholder
+.routeValue {
+  font-size: 0.8125em;
+  color: var(--muted);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// Applied when a POI is actually selected — uses full text colour
+.routeValueSet { color: var(--text); }
+
+// Thin vertical pink line separating the two route fields
+.routeDivider {
+  width: 0.094em;
+  height: 1.75em;
+  background: $pink;
+  flex-shrink: 0;
+}
+
+// Green dot colour for the "Vanaf" (origin) indicator
+.dotGreen { color: $green; font-size: 1.125em; line-height: 1; }
+// Red dot colour for the "Naar" (destination) indicator
+.dotPink  { color: $red;   font-size: 1.125em; line-height: 1; }
+
+// "✕" button that clears the selected route endpoints
+.clearBtn {
+  background: none;
+  border: none;
+  border-left: 0.094em solid $pink;
+  padding: 0 0.625em;
+  height: 100%;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.8125em;
+  transition: color 120ms, background 120ms;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  &:hover { color: $red; background: rgba(244,67,54,0.06); }
+}
+
+// ── Hint ──────────────────────────────────────────────────────────────────────
+// Small banner shown when the user is in selection mode, prompting them to pick a POI
+.hint {
+  font-size: 0.6875em;
+  color: $pink;
+  padding: 0.25em 0.875em;
+  background: var(--steps-hd);
+  border-top: 0.0625em solid $border;
+}
+
+// ── Route stappen ─────────────────────────────────────────────────────────────
+// Container for the step-by-step navigation instructions (desktop view)
+.stepsBox {
+  margin: 0.5em 0.75em 0;
+  border: 0.094em solid $border;
+  border-radius: 0.375em;
+  overflow: hidden;
+  background: var(--steps-bg);
+  transition: background 250ms;
+}
+
+// Header row of the steps box showing total distance, time, and action buttons
+.stepsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.375em 0.75em;
+  border-bottom: 0.0625em solid $border;
+  background: var(--steps-hd);
+  transition: background 250ms;
+}
+
+// Distance/time summary text in monospace purple
+.stepsMeta {
+  font-size: 0.6875em;
+  color: #b800d4;
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  letter-spacing: 0.01875em;
+}
+
+// Ordered list reset styles for the step rows
+.stepsList {
+  list-style: none;
+  padding: 0.375em 0 0.5em;
+}
+
+// One step row: icon column on the left, text on the right
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625em;
+  padding: 0 0.875em;
+  min-height: 2.125em;
+}
+
+// Left column containing the icon and the vertical connecting line
+.stepLeft {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  width: 1.375em;
+}
+
+// Emoji icon for the step type (e.g. 🚶, 🛗)
+.stepIcon {
+  font-size: 0.875em;
+  line-height: 1;
+  margin-top: 0.5em;
+}
+
+// Vertical line connecting consecutive step icons
+.stepLine {
+  width: 0.094em;
+  flex: 1;
+  min-height: 0.5em;
+  background: $border;
+  margin: 0.125em 0 0;
+}
+
+// Instruction text for a single step
+.stepText {
+  font-size: 0.781em;
+  color: var(--text-dim);
+  line-height: 1.45;
+  padding-top: 0.5625em;
+  flex: 1;
+  transition: color 250ms;
+}
+
+// Step type colour overrides
+.step_start  .stepText { color: var(--text); font-weight: 600; }
+.step_arrive .stepText { color: #b800d4; font-weight: 600; }
+.step_elevator .stepText { color: #b06000; }
+.step_enter  .stepText { color: var(--text); }
+
+// ── Category tabs (Feature 2) ─────────────────────────────────────────────────
+// Horizontal scrollable strip of filter pills above the POI grid
+// Used both standalone (legacy) and inside .catTabsRow (new layout)
+.catTabs {
+  display: flex;
+  gap: 0.375em;
+  flex-wrap: wrap;
+}
+
+// Individual category pill button
+.catTab {
+  padding: 0.25em 0.75em;
+  border-radius: 1.25em;
+  border: 0.094em solid $border;
+  background: none;
+  font-size: 0.75em;
+  color: #888;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 120ms;
+  &:hover { border-color: $pink; color: $pink; }
+}
+
+// Applied to the currently active category tab — filled pink background
+.catTabActive {
+  background: $pink;
+  border-color: $pink;
+  color: #fff;
+  font-weight: 500;
+}
+
+// ── POI grid ──────────────────────────────────────────────────────────────────
+// 3-column grid listing all visible points of interest
+.poiBox {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.125em 0;
+  margin: 0.5em 0.75em 0.75em;
+  border: 0.094em solid $pink;
+  border-radius: 0.375em;
+  overflow: hidden;
+}
+
+// One cell in the POI grid — a clickable button
+.poiItem {
+  display: flex;
+  align-items: center;
+  gap: 0.4375em;
+  padding: 0.4375em 0.625em;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 120ms;
+
+  &:hover { background: var(--pink-hover); }
+  // Green tint when this POI is the route origin
+  &.poiFrom { background: rgba(76,175,80,0.1); }
+  // Red tint when this POI is the route destination
+  &.poiTo   { background: rgba(244,67,54,0.1); }
+}
+
+// Small checkbox-style square shown before the POI name
+.checkBox {
+  width: 0.8125em;
+  height: 0.8125em;
+  border: 0.094em solid #bbb;
+  background: var(--check-bg);
+  border-radius: 0.125em;
+  flex-shrink: 0;
+  transition: all 120ms;
+}
+
+// Applied when the POI is selected as origin or destination — fills the box pink
+.checkActive {
+  background: $pink;
+  border-color: $pink;
+}
+
+// POI name with icon; truncates with ellipsis if too long
+.poiName {
+  font-size: 0.719em;
+  color: var(--text);
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 250ms;
+  flex: 1;
+}
+
+// ── Favorites (Feature 6) ─────────────────────────────────────────────────────
+// Star button inside each POI grid item
+.favBtn {
+  background: none;
+  border: none;
+  font-size: 0.875em;
+  cursor: pointer;
+  padding: 0 0.125em;
+  line-height: 1;
+  opacity: 0.6;
+  flex-shrink: 0;
+  &:hover { opacity: 1; }
+}
+
+// Full opacity when the POI is a favourite
+.favActive { opacity: 1; }
+
+// ── Detail card (Feature 3) ───────────────────────────────────────────────────
+// Slide-up panel anchored to the bottom of the card; shows info about a selected POI
+.detailCard {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-top: 0.125em solid $pink;
+  border-radius: 0.75em 0.75em 0 0;
+  padding: 1em;
+  z-index: 10;
+  box-shadow: 0 -0.25em 1.25em rgba(0,0,0,0.12);
+  animation: slideUp 200ms ease;
+}
+
+// The detail card slides up from the bottom when it appears
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+// "✕" button in the top-right corner of the detail card
+.detailClose {
+  position: absolute;
+  top: 0.75em;
+  right: 0.75em;
+  background: none;
+  border: none;
+  font-size: 1.125em;
+  cursor: pointer;
+  color: #888;
+}
+
+// Large centred emoji icon at the top of the detail card
+.detailIcon {
+  font-size: 2.25em;
+  text-align: center;
+  display: block;
+  margin-bottom: 0.375em;
+}
+
+// Bold POI name below the icon
+.detailName {
+  font-size: 1em;
+  font-weight: 700;
+  color: #222;
+  text-align: center;
+}
+
+// Short description text below the POI name
+.detailDesc {
+  font-size: 0.75em;
+  color: #888;
+  text-align: center;
+  margin: 0.25em 0 0.5em;
+}
+
+// Row showing floor name and status badge
+.detailMeta {
+  display: flex;
+  justify-content: center;
+  gap: 0.75em;
+  font-size: 0.6875em;
+  margin-bottom: 0.75em;
+}
+
+// Coloured pill showing the room's availability status (vrij / bezet / gesloten)
+.statusBadge {
+  padding: 0.125em 0.625em;
+  border-radius: 1.25em;
+  font-weight: 600;
+  font-size: 0.6875em;
+}
+
+// Row of action buttons at the bottom of the detail card
+.detailActions {
+  display: flex;
+  gap: 0.5em;
+}
+
+// "Vertrek hier" / "Navigeer hierheen" action buttons in the detail card
+.detailAction {
+  flex: 1;
+  padding: 0.5em;
+  border: 0.094em solid $pink;
+  border-radius: 0.5em;
+  background: none;
+  color: $pink;
+  font-size: 0.75em;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 120ms;
+  &:hover { background: $pink; color: #fff; }
+}
+
+// Star/favourite toggle button in the detail card action row
+.detailFav {
+  padding: 0.5em 0.75em;
+  border: 0.094em solid $border;
+  border-radius: 0.5em;
+  background: none;
+  font-size: 1em;
+  cursor: pointer;
+  transition: all 120ms;
+  &:hover { background: #fce4ff; }
+}
+
+// ── Legend ────────────────────────────────────────────────────────────────────
+// Vertical list of legend items shown beside the card
+.legend {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375em;
+  align-self: flex-start;
+}
+
+// One legend entry: coloured swatch + label text
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  font-size: 0.75em;
+  color: var(--text);
+  transition: color 250ms;
+}
+
+// Small square colour swatch for room-type legend entries
+.legendSquare {
+  width: 1.125em;
+  height: 1.125em;
+  border: 0.094em solid #ccc;
+  background: var(--card);
+  border-radius: 0.125em;
+  flex-shrink: 0;
+  transition: background 250ms;
+}
+
+// Grey-filled variant of the legend square for "not available" rooms
+.legendUnavail {
+  background: var(--legend-unavail);
+  border-color: #999;
+}
+
+// ── Refresh button (Feature 8) ────────────────────────────────────────────────
+// Pill button below the legend that randomises room statuses
+.refreshBtn {
+  margin-top: 0.25em;
+  padding: 0.3125em 0.625em;
+  border: 0.094em solid $border;
+  border-radius: 1.25em;
+  background: none;
+  font-size: 0.6875em;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 120ms;
+  &:hover { border-color: $pink; color: $pink; }
+}
+
+// ── Demo button ───────────────────────────────────────────────────────────────
+// "▶ Demo" / "⏹ Stop" pill button in the header
+.demoBtn {
+  padding: 0.3125em 0.875em;
+  border: 0.094em solid #e040fb;
+  border-radius: 1.25em;
+  background: none;
+  color: #e040fb;
+  font-size: 0.75em;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 150ms;
+  &:hover { background: #e040fb; color: #fff; }
+}
+
+// ── Demo speed control ────────────────────────────────────────────────────────
+// Wrapper for the speed label and range slider shown while the demo is running
+.demoSpeed {
+  display: flex;
+  align-items: center;
+  gap: 0.4375em;
+  flex-shrink: 0;
+}
+
+// Monospace speed multiplier label (e.g. "2×")
+.demoSpeedLabel {
+  font-size: 0.6875em;
+  color: var(--muted);
+  white-space: nowrap;
+  font-family: 'Space Mono', monospace;
+}
+
+// Custom-styled range input; the --pct CSS variable sets the pink fill amount
+.demoSlider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 5em;
+  height: 0.25em;
+  border-radius: 0.125em;
+  background: linear-gradient(to right, #e040fb var(--pct, 50%), var(--divider) var(--pct, 50%));
+  outline: none;
+  cursor: pointer;
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 0.875em;
+    height: 0.875em;
+    border-radius: 50%;
+    background: #e040fb;
+    border: 0.125em solid #fff;
+    box-shadow: 0 0.0625em 0.25em rgba(224,64,251,0.5);
+    cursor: pointer;
+  }
+  &::-moz-range-thumb {
+    width: 0.875em;
+    height: 0.875em;
+    border-radius: 50%;
+    background: #e040fb;
+    border: 0.125em solid #fff;
+    box-shadow: 0 0.0625em 0.25em rgba(224,64,251,0.5);
+    cursor: pointer;
+  }
+}
+
+// ── Building selector ─────────────────────────────────────────────────────────
+// Row of pill buttons for switching between Gebouw A and Gebouw B
+.buildingBar {
+  display: flex;
+  gap: 0.25em;
+}
+
+// One building pill button
+.buildingBtn {
+  padding: 0.25em 0.75em;
+  border: 0.094em solid $border;
+  border-radius: 1.25em;
+  background: none;
+  font-size: 0.75em;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 120ms;
+  font-family: 'DM Sans', sans-serif;
+  white-space: nowrap;
+  &:hover { border-color: $pink; color: $pink; }
+}
+
+// Applied to the currently selected building button — solid pink fill
+.buildingBtnActive {
+  background: $pink;
+  border-color: $pink;
+  color: #fff;
+  font-weight: 500;
+}
+
+// ── Coming soon ───────────────────────────────────────────────────────────────
+// Centred placeholder layout shown when Gebouw B is selected
+.comingSoon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3.75em 1.25em;
+  gap: 0.5em;
+}
+
+// Large emoji on the coming-soon screen
+.comingSoonIcon  { font-size: 2.5em; line-height: 1; }
+// Building name heading on the coming-soon screen
+.comingSoonTitle { font-size: 1.125em; font-weight: 700; color: var(--text); }
+// Subtitle on the coming-soon screen
+.comingSoonSub   { font-size: 0.8125em; color: var(--muted); }
+
+// ── Search bar ────────────────────────────────────────────────────────────────
+// Bordered input row for filtering the POI grid by name, description, or category
+.searchWrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin: 0.375em 0.75em 0;
+  border: 0.094em solid $border;
+  border-radius: 0.375em;
+  padding: 0.375em 0.625em;
+  background: var(--input-bg);
+  transition: border-color 150ms, background 250ms;
+  // Highlight border when the input has focus
+  &:focus-within { border-color: $pink; }
+}
+
+// Magnifying glass icon to the left of the search input
+.searchIcon { font-size: 0.8125em; line-height: 1; flex-shrink: 0; }
+
+// The actual text input inside the search bar
+.searchInput {
+  flex: 1;
+  border: none;
+  background: none;
+  font-size: 0.8125em;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  transition: color 250ms;
+  &::placeholder { color: var(--muted); }
+}
+
+// "✕" button that clears the search query; only visible when query is non-empty
+.searchClear {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.75em;
+  padding: 0;
+  line-height: 1;
+  &:hover { color: $red; }
+}
+
+// ── Status dot (in POI grid) ──────────────────────────────────────────────────
+// Small circle beside a POI name indicating availability (colour set via inline style)
+.statusDot {
+  width: 0.4375em;
+  height: 0.4375em;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+// ── No results ────────────────────────────────────────────────────────────────
+// Message shown in the POI grid when the search yields no matches
+.noResults {
+  font-size: 0.75em;
+  color: var(--muted);
+  padding: 1em 0.75em;
+  text-align: center;
+}
+
+// ── Share button ──────────────────────────────────────────────────────────────
+// Small icon button for sharing (clipboard) or printing the route
+.shareBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.875em;
+  padding: 0.125em 0.375em;
+  border-radius: 0.25em;
+  transition: background 120ms;
+  line-height: 1;
+  &:hover { background: rgba(224,64,251,0.12); }
+}
+
+// ── Desktop/mobile visibility ─────────────────────────────────────────────────
+// Hides an element on screens narrower than 600 px (e.g. route steps on mobile)
+.desktopOnly {
+  @media (max-width: 37.5em) { display: none !important; }
+}
+
+// ── Legend dot (status) ───────────────────────────────────────────────────────
+// Small circle used in the legend to represent a status colour
+.legendDot {
+  width: 0.625em;
+  height: 0.625em;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+// ── Toast notification ────────────────────────────────────────────────────────
+// Fixed bottom-centre pill that fades in and out to confirm user actions
+.toast {
+  position: fixed;
+  bottom: 5em;
+  left: 50%;
+  transform: translateX(-50%) translateY(0.75em);
+  background: #222;
+  color: #fff;
+  font-size: 0.8125em;
+  padding: 0.5em 1.125em;
+  border-radius: 1.25em;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 250ms, transform 250ms;
+  z-index: 100;
+  white-space: nowrap;
+}
+
+// Applied when the toast is visible — slides it into place and sets full opacity
+.toastVisible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+// ── Mobile bottom sheet ───────────────────────────────────────────────────────
+// Slide-up drawer shown only on mobile (<600 px) containing the route steps
+.sheet {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--sheet-bg);
+  border-top: 0.094em solid $border;
+  border-radius: 0.75em 0.75em 0 0;
+  box-shadow: 0 -0.25em 1.25em rgba(0,0,0,0.15);
+  z-index: 50;
+  // Peek: only the handle (52 px) is visible until opened
+  transform: translateY(calc(100% - 3.25em));
+  transition: transform 350ms cubic-bezier(0.4, 0, 0.2, 1), background 250ms;
+
+  @media (max-width: 37.5em) { display: flex; flex-direction: column; }
+}
+
+// Applied when the user taps the handle to fully expand the sheet
+.sheetOpen { transform: translateY(0); }
+
+// Tappable header area of the bottom sheet (drag handle + summary + buttons)
+.sheetHandle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875em 0.875em 0.5em;
+  cursor: pointer;
+  flex-shrink: 0;
+  gap: 0.5em;
+  position: relative;
+  min-height: 3.25em;
+}
+
+// Small horizontal pill at the very top of the sheet — the drag indicator
+.sheetHandleBar {
+  position: absolute;
+  top: 0.375em;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2.25em;
+  height: 0.25em;
+  background: var(--handle-bar);
+  border-radius: 0.125em;
+}
+
+// Monospace distance/time summary text in the sheet handle
+.sheetHandleLabel {
+  font-size: 0.6875em;
+  color: var(--muted);
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  letter-spacing: 0.01875em;
+}
+
+// Scrollable area inside the expanded sheet containing the step list
+.sheetContent {
+  overflow-y: auto;
+  max-height: 55vh;
+  padding-bottom: env(safe-area-inset-bottom, 1em);
+}
+
+// ── Dark mode overrides ───────────────────────────────────────────────────────
+// These rules override specific elements when data-theme="dark" is set on .app
+.app[data-theme="dark"] {
+  background: #111;
+}
+.app[data-theme="dark"] .header {
+  background: #161616;
+}
+.app[data-theme="dark"] .card {
+  background: #1e1e1e;
+}
+.app[data-theme="dark"] .logoName,
+.app[data-theme="dark"] .comingSoonTitle {
+  color: #f0f0f0;
+}
+.app[data-theme="dark"] .routeBox {
+  border-color: rgba(224,64,251,0.25);
+}
+.app[data-theme="dark"] .stepsBox {
+  border-color: #9c27b0;
+  background: #252525;
+}
+.app[data-theme="dark"] .hint {
+  background: rgba(224,64,251,0.15);
+}
+.app[data-theme="dark"] .searchWrap {
+  background: #2a2a2a;
+}
+.app[data-theme="dark"] .poiItem:hover {
+  background: rgba(224,64,251,0.15);
+}
+.app[data-theme="dark"] .navLink {
+  color: #aaa;
+}
+.app[data-theme="dark"] .legendItem {
+  color: #ccc;
+}
+.app[data-theme="dark"] .sheet {
+  background: #1e1e1e;
+}
+.app[data-theme="dark"] .comingSoonSub {
+  color: #888;
+}
+.app[data-theme="dark"] .detailCard {
+  background: #1e1e1e;
+  border-color: #9c27b0;
+}
+.app[data-theme="dark"] .detailName {
+  color: #f0f0f0;
+}
+.app[data-theme="dark"] .detailClose {
+  color: #aaa;
+}
+.app[data-theme="dark"] .detailDesc {
+  color: #888;
+}
+.app[data-theme="dark"] .catTab {
+  color: #888;
+  border-color: rgba(224,64,251,0.35);
+}
+
+// (Old per-button header styles removed — replaced by .hToolBtn / .hIconBtn system)
+
+// ── Tour banner ───────────────────────────────────────────────────────────────
+// Pink-bordered panel shown directly below the map while a tour is running.
+// Contains progress dots, stop info, a tip text, and action buttons.
+.tourBar {
+  margin: 0.625em 0.75em 0;
+  border: 0.094em solid #4caf50;
+  border-radius: 0.5em;
+  padding: 0.75em 1em;
+  background: rgba(76, 175, 80, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  animation: slideUp 200ms ease;
+}
+
+// Row of small progress dots — one per tour stop
+.tourDots {
+  display: flex;
+  gap: 0.375em;
+  align-items: center;
+}
+
+// Single progress dot (unfilled = not yet reached)
+.tourDot {
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  background: #ccc;
+  transition: all 200ms;
+}
+
+// Dot for the currently active stop — large and green
+.tourDotActive {
+  background: #4caf50;
+  width: 0.625em;
+  height: 0.625em;
+}
+
+// Dot for stops already visited — smaller, faded green
+.tourDotDone {
+  background: #a5d6a7;
+}
+
+// Row showing the stop icon and name/counter
+.tourStop {
+  display: flex;
+  align-items: center;
+  gap: 0.625em;
+}
+
+// Large emoji icon for the current stop
+.tourStopIcon {
+  font-size: 1.5em;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+// Stacks the counter ("Stop 2 van 5") above the stop name
+.tourStopText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125em;
+}
+
+// Small muted counter text
+.tourStopCounter {
+  font-size: 0.6875em;
+  color: #4caf50;
+  font-weight: 600;
+  font-family: 'Space Mono', monospace;
+  letter-spacing: 0.019em;
+}
+
+// Bold stop name
+.tourStopName {
+  font-size: 0.9375em;
+  font-weight: 700;
+  color: var(--text);
+  transition: color 250ms;
+}
+
+// Tip/description text for the current stop
+.tourTip {
+  font-size: 0.75em;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin: 0;
+  transition: color 250ms;
+}
+
+// Row of action buttons at the bottom of the tour banner
+.tourActions {
+  display: flex;
+  gap: 0.5em;
+  margin-top: 0.125em;
+}
+
+// "✕ Annuleer" button — subtle grey outline
+.tourCancelBtn {
+  padding: 0.375em 0.75em;
+  border: 0.094em solid var(--divider);
+  border-radius: 0.375em;
+  background: none;
+  font-size: 0.75em;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 120ms;
+  &:hover { border-color: #f44336; color: #f44336; }
+}
+
+// "Ik ben er ✓" / "🎉 Tour voltooid!" primary action button
+.tourNextBtn {
+  flex: 1;
+  padding: 0.375em 0.75em;
+  border: 0.094em solid #4caf50;
+  border-radius: 0.375em;
+  background: #4caf50;
+  color: #fff;
+  font-size: 0.75em;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 120ms;
+  &:hover { background: #388e3c; border-color: #388e3c; }
+}
+
+// Tour stop highlight in the POI grid — green tint for the current stop
+.poiTourStop {
+  background: rgba(76, 175, 80, 0.12) !important;
+  outline: 0.094em solid #4caf50;
+  outline-offset: -0.094em;
+}
+
+// Small 📍 badge shown next to the current tour stop in the POI grid
+.tourStopBadge {
+  font-size: 0.75em;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+// ── QR Modal overlay ──────────────────────────────────────────────────────────
+// Full-screen semi-transparent backdrop behind the QR modal
+.qrOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  z-index: 200;
+  padding: 1.25em;
+  overflow-y: auto;
+  backdrop-filter: blur(2px);
+}
+
+// White rounded box inside the overlay
+.qrModal {
+  background: var(--card);
+  border-radius: 0.75em;
+  width: 100%;
+  max-width: 56.25em;
+  box-shadow: 0 0.5em 2em rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  transition: background 250ms;
+}
+
+// Sticky header inside the modal with title, subtitle, and action buttons
+.qrModalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1em;
+  padding: 1.25em 1.5em;
+  border-bottom: 0.0625em solid var(--divider);
+  background: var(--steps-hd);
+  transition: background 250ms;
+}
+
+// "📱 QR-codes per ruimte" heading
+.qrModalTitle {
+  font-size: 1em;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.25em;
+  transition: color 250ms;
+}
+
+// Instructional subtitle below the title
+.qrModalSub {
+  font-size: 0.75em;
+  color: var(--muted);
+  line-height: 1.5;
+  max-width: 37.5em;
+}
+
+// Row of "Print alles" + close buttons in the modal header
+.qrModalActions {
+  display: flex;
+  gap: 0.5em;
+  flex-shrink: 0;
+  align-items: flex-start;
+}
+
+// "🖨️ Print alles" button in the QR modal
+.qrPrintBtn {
+  padding: 0.4375em 1em;
+  border: 0.094em solid #7c4dff;
+  border-radius: 1.25em;
+  background: #7c4dff;
+  color: #fff;
+  font-size: 0.75em;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 120ms;
+  white-space: nowrap;
+  &:hover { background: #5e35b1; border-color: #5e35b1; }
+}
+
+// "✕" close button in the modal header
+.qrCloseBtn {
+  padding: 0.4375em 0.625em;
+  border: 0.094em solid var(--divider);
+  border-radius: 0.375em;
+  background: none;
+  font-size: 0.9375em;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 120ms;
+  &:hover { border-color: #f44336; color: #f44336; }
+}
+
+// Auto-fill grid of QR code cards — 4 columns on desktop, fewer on mobile
+.qrGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10em, 1fr));
+  gap: 0.0625em;
+  padding: 1em;
+  background: var(--divider);
+}
+
+// Single QR code card: centred column with QR image, icon, name, floor
+.qrItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375em;
+  padding: 1em 0.75em;
+  background: var(--card);
+  text-align: center;
+  transition: background 250ms;
+
+  // QR code SVG inherits text colour for dark-mode compatibility
+  svg { color: var(--text); }
+}
+
+// Large emoji icon below the QR code
+.qrItemIcon {
+  font-size: 1.25em;
+  line-height: 1;
+  margin-top: 0.125em;
+}
+
+// Bold POI name below the icon
+.qrItemName {
+  font-size: 0.75em;
+  font-weight: 700;
+  color: var(--text);
+  transition: color 250ms;
+  word-break: break-word;
+}
+
+// Muted floor label below the name
+.qrItemFloor {
+  font-size: 0.625em;
+  color: var(--muted);
+  font-family: 'Space Mono', monospace;
+}
+
+// ── Print override for QR modal ───────────────────────────────────────────────
+// When the user clicks "Print alles" inside the QR modal, only the grid prints.
+@media print {
+  .qrOverlay {
+    position: static !important;
+    padding: 0 !important;
+    background: none !important;
+    backdrop-filter: none !important;
+    display: block !important;
+  }
+  .qrModal {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    max-width: none !important;
+  }
+  .qrModalHeader { display: none !important; }
+  .qrGrid {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 0 !important;
+    padding: 0 !important;
+    background: none !important;
+    page-break-inside: avoid;
+  }
+  .qrItem {
+    border: 0.0625em solid #ddd;
+    page-break-inside: avoid;
+  }
+}
+
+// ── Feature 1: Schedule header button ────────────────────────────────────────
+// "📅 Programma" pill button in the header that opens the schedule modal
+.scheduleHeaderBtn {
+  padding: 0.3125em 0.875em;
+  border: 0.094em solid #ff8f00;
+  border-radius: 1.25em;
+  background: none;
+  color: #ff8f00;
+  font-size: 0.75em;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 150ms;
+  &:hover { background: #ff8f00; color: #fff; }
+}
+
+// ── Feature 1: Schedule modal list ───────────────────────────────────────────
+// Scrollable list of open day events inside the schedule modal
+.scheduleList {
+  padding: 0.75em 0;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+// One event row: time — title — poi — floor
+.scheduleItem {
+  display: grid;
+  grid-template-columns: 3.5em 1fr auto auto;
+  align-items: center;
+  gap: 0.625em;
+  padding: 0.5em 1.25em;
+  border-bottom: 0.0625em solid var(--divider);
+  &:last-child { border-bottom: none; }
+  &:hover { background: var(--pink-hover); }
+}
+
+// "HH:MM" time column in the schedule
+.scheduleTime {
+  font-size: 0.75em;
+  font-weight: 700;
+  color: #ff8f00;
+  font-family: 'Space Mono', monospace;
+  white-space: nowrap;
+}
+
+// Event title column
+.scheduleTitle {
+  font-size: 0.8125em;
+  color: var(--text);
+  font-weight: 500;
+}
+
+// POI icon + name column
+.schedulePoi {
+  font-size: 0.75em;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+// Floor name column
+.scheduleFloor {
+  font-size: 0.6875em;
+  color: var(--muted);
+  font-family: 'Space Mono', monospace;
+  white-space: nowrap;
+}
+
+// ── Feature 1: POI grid event badge ──────────────────────────────────────────
+// Small 📅 badge shown on POIs that have open day events
+.eventBadge {
+  font-size: 0.75em;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+// ── Feature 1: POI detail card events section ─────────────────────────────────
+// Events list inside the detail card, shown between detailDesc and detailMeta
+.detailEvents {
+  margin: 0.375em 0 0.5em;
+  border: 0.0625em solid rgba(255,143,0,0.35);
+  border-radius: 0.375em;
+  overflow: hidden;
+  background: rgba(255,143,0,0.04);
+}
+
+// "📅 Open dag programma" heading inside the events box
+.detailEventsTitle {
+  font-size: 0.6875em;
+  font-weight: 700;
+  color: #ff8f00;
+  padding: 0.375em 0.625em 0.25em;
+  border-bottom: 0.0625em solid rgba(255,143,0,0.2);
+}
+
+// One row in the detail card's event list
+.detailEventRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.25em 0.625em;
+  border-bottom: 0.0625em solid rgba(255,143,0,0.1);
+  &:last-child { border-bottom: none; }
+}
+
+// Time column in detail event row
+.detailEventTime {
+  font-size: 0.6875em;
+  font-weight: 700;
+  color: #ff8f00;
+  font-family: 'Space Mono', monospace;
+  white-space: nowrap;
+}
+
+// Event title in detail event row
+.detailEventTitle {
+  font-size: 0.6875em;
+  color: var(--text);
+  flex: 1;
+}
+
+// Duration in minutes in detail event row
+.detailEventDur {
+  font-size: 0.625em;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+// ── Feature 2 (new): Programme tabs row ──────────────────────────────────────
+// Wrapper row for the programme filter tab strip with label
+.progTabsRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.5em 0.75em 0;
+}
+
+// Wrapper row for the category tab strip with label (mirrors progTabsRow)
+.catTabsRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.25em 0.75em 0;
+}
+
+// Small muted label before a tab strip ("Opleiding:" / "Categorie:")
+.tabsLabel {
+  font-size: 0.625em;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+// Programme pill tabs (amber colour scheme, distinct from pink category tabs)
+.progTabs {
+  display: flex;
+  gap: 0.375em;
+  flex-wrap: wrap;
+}
+
+// Individual programme pill button
+.progTab {
+  padding: 0.25em 0.75em;
+  border-radius: 1.25em;
+  border: 0.094em solid #ffb300;
+  background: none;
+  font-size: 0.75em;
+  color: #b36a00;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 120ms;
+  &:hover { border-color: #ff8f00; color: #ff6f00; }
+}
+
+// Applied to the currently active programme tab — amber fill
+.progTabActive {
+  background: #ff8f00;
+  border-color: #ff8f00;
+  color: #fff;
+  font-weight: 500;
+}
+
+// ── Feature 3 (new): Surprise me button ──────────────────────────────────────
+// "🎲 Verras me" pill button in the header
+.surpriseBtn {
+  padding: 0.3125em 0.875em;
+  border: 0.094em solid #7c4dff;
+  border-radius: 1.25em;
+  background: none;
+  color: #7c4dff;
+  font-size: 0.75em;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 150ms;
+  &:hover { background: #7c4dff; color: #fff; }
+}
+
+// ── Feature 4 (new): Accessibility mode ──────────────────────────────────────
+// ♿ toggle button in the header; gets a blue border/fill when active
+.accessBtn {
+  background: none;
+  border: 0.094em solid var(--divider);
+  border-radius: 0.375em;
+  width: 2em;
+  height: 2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9375em;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 120ms, background 120ms;
+  line-height: 1;
+  &:hover { border-color: #2196f3; background: rgba(33,150,243,0.08); }
+}
+
+// Applied when accessibility mode is on — solid blue border
+.accessBtnActive {
+  border-color: #2196f3;
+  background: rgba(33,150,243,0.12);
+  color: #2196f3;
+}
+
+// Banner below the header in accessibility mode
+.accessBanner {
+  background: rgba(33,150,243,0.12);
+  border-bottom: 0.0625em solid rgba(33,150,243,0.4);
+  color: #1565c0;
+  font-size: 0.75em;
+  font-weight: 600;
+  padding: 0.375em 1.25em;
+  text-align: center;
+}
+
+// Scales up text when accessibility mode is active
+.accessMode {
+  font-size: 1.125em;
+}
+
+// Small "Lift beschikbaar" badge in the POI grid (accessibility mode)
+.accessNote {
+  font-size: 0.625em;
+  color: #2196f3;
+  border: 0.0625em solid #2196f3;
+  border-radius: 0.75em;
+  padding: 0.0625em 0.375em;
+  white-space: nowrap;
+  flex-shrink: 0;
+  background: rgba(33,150,243,0.08);
+}
+
+// ── Feature 5 (new): Language toggle ─────────────────────────────────────────
+// 🇳🇱/🇬🇧 icon button in the header
+.langBtn {
+  background: none;
+  border: 0.094em solid var(--divider);
+  border-radius: 0.375em;
+  width: 2em;
+  height: 2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9375em;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 120ms, background 120ms;
+  line-height: 1;
+  &:hover { border-color: $pink; background: rgba(224,64,251,0.08); }
+}
+
+// ── Feature 6 (new): Saved route button ──────────────────────────────────────
+// "📂" icon button in the header that restores a saved route
+.savedRouteBtn {
+  background: none;
+  border: 0.094em solid var(--divider);
+  border-radius: 0.375em;
+  width: 2em;
+  height: 2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9375em;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 120ms, background 120ms;
+  line-height: 1;
+  &:hover { border-color: $pink; background: rgba(224,64,251,0.08); }
+}
+
+// ── Feature 7 (new): Kiosk mode ──────────────────────────────────────────────
+// ⊞ toggle button in the header (hidden while kiosk mode is active)
+.kioskToggleBtn {
+  background: none;
+  border: 0.094em solid var(--divider);
+  border-radius: 0.375em;
+  width: 2em;
+  height: 2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9375em;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 120ms, background 120ms;
+  line-height: 1;
+  &:hover { border-color: $pink; background: rgba(224,64,251,0.08); }
+}
+
+// Minimal header shown in kiosk mode
+.kioskHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.25em;
+  height: 3.25em;
+  background: var(--header-bg);
+  border-bottom: 0.0625em solid var(--divider);
+  transition: background 250ms, border-color 250ms;
+}
+
+// Large clock text centred in the kiosk header
+.kioskClock {
+  font-size: 1.375em;
+  font-weight: 800;
+  color: $pink;
+  font-family: 'Space Mono', monospace;
+  letter-spacing: 0.05em;
+}
+
+// Small "Exit kiosk" button in the top-right of the kiosk header
+.kioskExitBtn {
+  padding: 0.25em 0.75em;
+  border: 0.094em solid $border;
+  border-radius: 1.25em;
+  background: none;
+  font-size: 0.75em;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 120ms;
+  &:hover { border-color: $pink; color: $pink; }
+}
+
+// Applied to .app in kiosk mode — larger text and big touch targets
+.kioskMode {
+  font-size: 1.2em;
+
+  // Bigger minimum touch targets for all buttons in kiosk mode
+  button { min-height: 3em; }
+}
+
+// ── Help modal ────────────────────────────────────────────────────────────────
+// Overlay + popup explaining all buttons and features in plain language.
+// Shares the same backdrop style as the QR modal.
+.helpOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 1.25em;
+  backdrop-filter: blur(0.125em);
+}
+
+// The white popup box — compact, centred, max 28em wide
+.helpModal {
+  background: var(--card);
+  border-radius: 0.75em;
+  width: 100%;
+  max-width: 28em;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0.5em 2em rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  transition: background 250ms;
+}
+
+// Sticky header inside the popup: title + close button
+.helpHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1em;
+  padding: 1em 1.25em;
+  border-bottom: 0.0625em solid var(--divider);
+  flex-shrink: 0;
+}
+
+// "Uitleg & functies" heading
+.helpTitle {
+  font-size: 0.9375em;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.2em;
+  transition: color 250ms;
+}
+
+// Subtitle below the heading
+.helpSub {
+  font-size: 0.75em;
+  color: var(--muted);
+}
+
+// Scrollable list of feature entries
+.helpList {
+  overflow-y: auto;
+  padding: 0.625em 0;
+  flex: 1;
+}
+
+// One feature row: icon square on the left, name + description on the right
+.helpItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875em;
+  padding: 0.75em 1.25em;
+  border-bottom: 0.0625em solid var(--divider);
+
+  &:last-child { border-bottom: none; }
+}
+
+// Centred icon / emoji container — fixed size so all rows align
+.helpItemIcon {
+  width: 2em;
+  height: 2em;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--input-bg);
+  border-radius: 0.375em;
+  font-size: 1em;
+  color: var(--text-dim);
+  border: 0.0625em solid var(--divider);
+  transition: background 250ms;
+
+  svg { display: block; }
+}
+
+// Text block to the right of the icon
+.helpItemBody {
+  flex: 1;
+  min-width: 0;
+}
+
+// Bold feature name
+.helpItemName {
+  font-size: 0.8125em;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.2em;
+  transition: color 250ms;
+}
+
+// Plain-language description
+.helpItemDesc {
+  font-size: 0.75em;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+// Mobile adjustments: hide nav, switch to 2-column POI grid, shrink map
+@media (max-width: 37.5em) {
+  // Nav links hidden on mobile — accessible via building/tool bar instead
+  .nav { display: none; }
+  // Tighter building switcher buttons
+  .buildingBar { gap: 0.25em; }
+  .buildingBtn { padding: 0.1875em 0.5em; font-size: 0.6875em; }
+  // POI grid: 2 columns on mobile instead of 3
+  .poiBox { grid-template-columns: repeat(2, 1fr); }
+  // Shorter map on mobile
+  .mapRow { height: 18.75em; }
+  // Legend wraps below the card on mobile
+  .main { flex-direction: column; }
+  .legend { flex-direction: row; flex-wrap: wrap; align-self: stretch; gap: 0.5em 1em; }
+}
+
+// ── Print styles (Feature 7) ──────────────────────────────────────────────────
+// When printing from the main map view, hide everything except the route step list.
+// When printing from the QR modal the .qrOverlay rules above take over instead.
+@media print {
+  // Only apply these rules when the QR modal is NOT open
+  .app:not(:has(.qrOverlay)) > *:not(.main) { display: none !important; }
+  .app:not(:has(.qrOverlay)) .main > *:not(.card) { display: none !important; }
+  .app:not(:has(.qrOverlay)) .card > *:not(.stepsBox) { display: none !important; }
+  .stepsBox {
+    display: block !important;
+    box-shadow: none;
+    border: 0.0625em solid #ccc;
+    border-radius: 0;
+    margin: 0;
+  }
+}
