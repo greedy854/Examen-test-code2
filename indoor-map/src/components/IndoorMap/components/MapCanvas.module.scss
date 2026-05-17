@@ -20,36 +20,42 @@
 }
 
 // ── Zoom controls ─────────────────────────────────────────────────────────────
-// Absolute column of zoom/reset buttons pinned to the bottom-right of the map
+// Frosted-glass column of zoom/reset buttons pinned to the bottom-right of the map
 .zoom {
   position: absolute;
-  bottom: 0.5em;
-  right: 0.5em;
+  bottom: 0.75em;
+  right: 0.75em;
   display: flex;
   flex-direction: column;
-  gap: 0.1875em;
+  gap: 0;
   z-index: 2;
+  background: var(--card);
+  border: 1px solid rgba(224,64,251,0.25);
+  border-radius: 0.625em;
+  overflow: hidden;
+  box-shadow: 0 0.25em 1em rgba(0,0,0,0.15);
+  backdrop-filter: blur(8px);
 }
 
 // Individual zoom button (+, −, reset ⊡)
 .zBtn {
-  width: 1.625em;
-  height: 1.625em;
+  width: 2em;
+  height: 2em;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--card);
-  border: 0.094em solid #e0b0f0;
-  border-radius: 0.25em;
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(224,64,251,0.15);
   color: #e040fb;
-  font-size: 0.875em;
+  font-size: 0.9375em;
   cursor: pointer;
   transition: all 120ms;
 
+  &:last-child { border-bottom: none; }
+
   &:hover {
-    background: var(--pink-hover);
-    border-color: #e040fb;
+    background: rgba(224,64,251,0.12);
   }
-  // Slightly darker background while the button is pressed
-  &:active { background: var(--steps-hd); }
+  &:active { background: rgba(224,64,251,0.22); }
 }

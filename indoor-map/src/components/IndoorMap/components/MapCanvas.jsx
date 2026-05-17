@@ -1,150 +1,13 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
-import { FLOOR_ROOMS, ROOM_DOORS, SVG_W, SVG_H } from '../data/building'
+import { SVG_W, SVG_H } from '../data/building'
 import { floorWaypoints, waypointsToPath } from '../utils/routing'
 import styles from './MapCanvas.module.scss'
 
-// ── Wall lines per floor ──────────────────────────────────────────────────────
-// Each entry is an array of line segments { x1, y1, x2, y2 } that form the
-// structural walls for that floor. Lines with dim:true are interior partition
-// walls drawn thinner and more transparent.
-const WALL_LINES = {
-  0: [
-    { x1: 160, y1: 0,   x2: 395, y2: 0   },
-    { x1: 160, y1: 0,   x2: 160, y2: 155 },
-    { x1: 395, y1: 0,   x2: 395, y2: 155 },
-    { x1: 0,   y1: 155, x2: 160, y2: 155 },
-    { x1: 0,   y1: 155, x2: 0,   y2: 515 },
-    { x1: 0,   y1: 515, x2: 720, y2: 515 },
-    { x1: 720, y1: 335, x2: 720, y2: 515 },
-    { x1: 395, y1: 155, x2: 795, y2: 155 },
-    { x1: 795, y1: 155, x2: 795, y2: 335 },
-    { x1: 40,  y1: 295, x2: 795, y2: 295 },
-    { x1: 40,  y1: 335, x2: 795, y2: 335 },
-    { x1: 40,  y1: 295, x2: 40,  y2: 335 },
-    { x1: 248, y1: 0,   x2: 248, y2: 295, dim: true },
-    { x1: 308, y1: 0,   x2: 308, y2: 295, dim: true },
-    { x1: 160, y1: 77,  x2: 395, y2: 77,  dim: true },
-    { x1: 160, y1: 154, x2: 395, y2: 154, dim: true },
-    { x1: 60,  y1: 155, x2: 60,  y2: 515, dim: true },
-    { x1: 0,   y1: 245, x2: 60,  y2: 245, dim: true },
-    { x1: 0,   y1: 335, x2: 160, y2: 335, dim: true },
-    { x1: 0,   y1: 425, x2: 60,  y2: 425, dim: true },
-    { x1: 475, y1: 155, x2: 475, y2: 295, dim: true },
-    { x1: 555, y1: 155, x2: 555, y2: 295, dim: true },
-    { x1: 635, y1: 155, x2: 635, y2: 295, dim: true },
-    { x1: 715, y1: 155, x2: 715, y2: 295, dim: true },
-    { x1: 300, y1: 335, x2: 300, y2: 515, dim: true },
-    { x1: 440, y1: 335, x2: 440, y2: 515, dim: true },
-    { x1: 580, y1: 335, x2: 580, y2: 515, dim: true },
-  ],
-  1: [
-    { x1: 5,   y1: 195, x2: 795, y2: 195 },
-    { x1: 5,   y1: 325, x2: 795, y2: 325 },
-    { x1: 355, y1: 5,   x2: 355, y2: 195 },
-    { x1: 355, y1: 100, x2: 565, y2: 100 },
-    { x1: 565, y1: 5,   x2: 565, y2: 195 },
-    { x1: 180, y1: 325, x2: 180, y2: 515 },
-    { x1: 435, y1: 325, x2: 435, y2: 515 },
-    { x1: 85,  y1: 195, x2: 85,  y2: 325, dim: true },
-    { x1: 360, y1: 195, x2: 360, y2: 325, dim: true },
-    { x1: 440, y1: 195, x2: 440, y2: 325, dim: true },
-    { x1: 715, y1: 195, x2: 715, y2: 325, dim: true },
-  ],
-  2: [
-    { x1: 5,   y1: 325, x2: 795, y2: 325 },
-    { x1: 5,   y1: 415, x2: 795, y2: 415 },
-    { x1: 445, y1: 5,   x2: 445, y2: 325 },
-    { x1: 5,   y1: 195, x2: 445, y2: 195 },
-    { x1: 200, y1: 415, x2: 200, y2: 515 },
-    { x1: 445, y1: 415, x2: 445, y2: 515 },
-    { x1: 85,  y1: 325, x2: 85,  y2: 415, dim: true },
-    { x1: 360, y1: 325, x2: 360, y2: 415, dim: true },
-    { x1: 440, y1: 325, x2: 440, y2: 415, dim: true },
-    { x1: 715, y1: 325, x2: 715, y2: 415, dim: true },
-  ],
-  // 3e Verdieping — same wall layout as floor 0
-  3: [
-    { x1: 160, y1: 0,   x2: 395, y2: 0   },
-    { x1: 160, y1: 0,   x2: 160, y2: 155 },
-    { x1: 395, y1: 0,   x2: 395, y2: 155 },
-    { x1: 0,   y1: 155, x2: 160, y2: 155 },
-    { x1: 0,   y1: 155, x2: 0,   y2: 515 },
-    { x1: 0,   y1: 515, x2: 720, y2: 515 },
-    { x1: 720, y1: 335, x2: 720, y2: 515 },
-    { x1: 395, y1: 155, x2: 795, y2: 155 },
-    { x1: 795, y1: 155, x2: 795, y2: 335 },
-    { x1: 40,  y1: 295, x2: 795, y2: 295 },
-    { x1: 40,  y1: 335, x2: 795, y2: 335 },
-    { x1: 40,  y1: 295, x2: 40,  y2: 335 },
-    { x1: 248, y1: 0,   x2: 248, y2: 295, dim: true },
-    { x1: 308, y1: 0,   x2: 308, y2: 295, dim: true },
-    { x1: 160, y1: 77,  x2: 395, y2: 77,  dim: true },
-    { x1: 160, y1: 154, x2: 395, y2: 154, dim: true },
-    { x1: 60,  y1: 155, x2: 60,  y2: 515, dim: true },
-    { x1: 0,   y1: 245, x2: 60,  y2: 245, dim: true },
-    { x1: 0,   y1: 335, x2: 160, y2: 335, dim: true },
-    { x1: 0,   y1: 425, x2: 60,  y2: 425, dim: true },
-    { x1: 475, y1: 155, x2: 475, y2: 295, dim: true },
-    { x1: 555, y1: 155, x2: 555, y2: 295, dim: true },
-    { x1: 635, y1: 155, x2: 635, y2: 295, dim: true },
-    { x1: 715, y1: 155, x2: 715, y2: 295, dim: true },
-    { x1: 300, y1: 335, x2: 300, y2: 515, dim: true },
-    { x1: 440, y1: 335, x2: 440, y2: 515, dim: true },
-    { x1: 580, y1: 335, x2: 580, y2: 515, dim: true },
-  ],
-}
-
-// ── Theme-aware SVG colours ───────────────────────────────────────────────────
-// Returns a colour palette object suited for the current theme (dark or light)
-function getColors(isDark) {
-  return isDark ? {
-    canvas:         '#1a1a1a',
-    border:         'rgba(224,64,251,0.30)',
-    roomBase:       '#2a2a2a',
-    corridor:       '#200e35',
-    stairs:         '#180c28',
-    elevator:       '#200e32',
-    labelDim:       'rgba(200,130,240,0.55)',
-    labelSpecial:   'rgba(200,140,250,0.85)',
-    doorGap:        '#1a1a1a',
-    statusBezet:    'rgba(244,67,54,0.18)',
-    statusGesloten: 'rgba(120,120,120,0.20)',
-    statusVrij:     'rgba(76,175,80,0.15)',
-  } : {
-    canvas:         '#ffffff',
-    border:         'rgba(224,64,251,0.18)',
-    roomBase:       '#ffffff',
-    corridor:       '#fdf0ff',
-    stairs:         '#f5e6f8',
-    elevator:       '#fce4ff',
-    labelDim:       'rgba(180,80,210,0.45)',
-    labelSpecial:   'rgba(160,60,200,0.70)',
-    doorGap:        '#ffffff',
-    statusBezet:    'rgba(244,67,54,0.09)',
-    statusGesloten: 'rgba(100,100,100,0.09)',
-    statusVrij:     'rgba(76,175,80,0.07)',
-  }
-}
-
-// Returns the fill colour for a room rectangle based on its type, highlight state, and status.
-// accessElevator: when true, use a blue tint for elevator rooms (accessibility mode)
-function roomFill(type, highlighted, status, C, accessElevator) {
-  if (highlighted) return 'rgba(224,64,251,0.15)'
-  if (type !== 'room') {
-    if (type === 'corridor')  return C.corridor
-    if (type === 'stairs')    return C.stairs
-    if (type === 'elevator')  return accessElevator ? 'rgba(33,150,243,0.25)' : C.elevator
-    return C.canvas
-  }
-  return C.roomBase
-}
-
-// Returns the stroke colour for special room types (elevator = pink/blue, stairs = purple)
-// accessElevator: when true, draw elevator rooms with a blue stroke (accessibility mode)
-function roomStroke(type, accessElevator) {
-  if (type === 'elevator') return accessElevator ? '#2196f3' : '#e040fb'
-  if (type === 'stairs')   return '#c060e0'
-  return 'none'
+const FLOOR_IMAGES = {
+  0: '/maps/floor-0.png',
+  1: '/maps/floor-1.png',
+  2: '/maps/floor-2.png',
+  3: '/maps/floor-3.png',
 }
 
 // Calculates the Euclidean distance between two touch points for pinch-to-zoom
@@ -157,11 +20,9 @@ function pinchDist(t1, t2) {
 // Renders the SVG floor plan with pan, zoom, route overlay, and POI markers
 export default function MapCanvas({
   floor, pois, route, origin, destination,
-  onPoiClick, hoveredPoi, onPoiHover, highlightRoomId,
-  centerOn, roomStatuses, isDark, walkerPos,
-  // highlightPoiIds: array of poi ids to glow amber (programme filter)
+  onPoiClick, hoveredPoi, onPoiHover,
+  centerOn, isDark, walkerPos,
   highlightPoiIds,
-  // accessMode: when true, draw elevator rooms with blue tint + ♿ emoji
   accessMode,
 }) {
   // Ref to the outer wrapper div — used to attach wheel and touch listeners
@@ -181,20 +42,34 @@ export default function MapCanvas({
   // { startDist, startScale } for two-finger zoom
   const pinch      = useRef(null)   // { startDist, startScale } for two-finger zoom
 
-  // Resolve the colour palette for the current theme
-  const C        = getColors(isDark)
-  // Room rectangles for the visible floor
-  const rooms    = FLOOR_ROOMS[floor] || []
-  // Door gap rectangles for the visible floor
-  const doors    = ROOM_DOORS[floor]  || []
-  // Wall line segments for the visible floor
-  const walls    = WALL_LINES[floor]  || []
   // Only POIs that belong to the currently visible floor
   const floorPois = (pois || []).filter(p => p.floor === floor)
 
   // Filter route waypoints to the current floor and convert them to an SVG path string
   const routeWps  = route ? floorWaypoints(route.waypoints, floor) : []
   const routePath = waypointsToPath(routeWps)
+
+  // ── Stair transition markers ───────────────────────────────────────────────
+  // When the route is multi-floor, mark the exact point where the path
+  // reaches the staircase on this floor (origin floor: last waypoint before the
+  // floor changes; destination floor: first waypoint where the floor begins).
+  // We collect positions that are on this floor but are adjacent to a different floor.
+  const stairMarkers = (() => {
+    if (!route || !route.multiFloor) return []
+    const all = route.waypoints
+    const markers = []
+    for (let i = 0; i < all.length; i++) {
+      const wp = all[i]
+      if (wp.floor !== floor) continue
+      const prev = all[i - 1]
+      const next = all[i + 1]
+      // Entry from another floor: previous wp was on a different floor
+      if (prev && prev.floor !== floor) markers.push({ x: wp.x, y: wp.y, type: 'entry' })
+      // Exit to another floor: next wp is on a different floor
+      if (next && next.floor !== floor) markers.push({ x: wp.x, y: wp.y, type: 'exit' })
+    }
+    return markers
+  })()
 
   // ── Pan (mouse) ──────────────────────────────────────────────────────────
   // Records the anchor position when the user starts dragging the map
@@ -233,8 +108,11 @@ export default function MapCanvas({
   }, [])
 
   // ── Zoom (wheel) ─────────────────────────────────────────────────────────
-  // Scales the map in/out on mouse-wheel, clamped between 0.3× and 6×
+  // Desktop: zoom only when Ctrl is held (Ctrl+scroll). Normal scroll passes through.
+  // Mobile: pinch gestures fire synthetic wheel events with ctrlKey=true, so
+  //         the same check naturally enables pinch-zoom without extra code.
   const onWheel = useCallback((e) => {
+    if (!e.ctrlKey) return          // no Ctrl → let the page scroll normally
     e.preventDefault()
     const f = e.deltaY > 0 ? 0.88 : 1.14
     setTx(t => ({ ...t, s: Math.max(0.3, Math.min(6, t.s * f)) }))
@@ -311,12 +189,11 @@ export default function MapCanvas({
   }, [])
 
   // ── Auto-center on selected POI ──────────────────────────────────────────
-  // Pans and zooms to centre the map on a given coordinate whenever centerOn changes
   useEffect(() => {
     if (!centerOn) return
     setTx(prev => {
       const s = Math.max(prev.s, 2.0)
-      return { x: 400 - centerOn.x * s, y: 260 - centerOn.y * s, s }
+      return { x: 400 - centerOn.x * s, y: 343 - centerOn.y * s, s }
     })
   }, [centerOn])
 
@@ -343,6 +220,8 @@ export default function MapCanvas({
             .rDots { animation: dotFlow 0.75s linear infinite; }
             @keyframes pulse { 0%,100%{opacity:0.6} 50%{opacity:0.1} }
             .pPulse { animation: pulse 1.8s ease-in-out infinite; }
+            @keyframes pulse2 { 0%,100%{opacity:0.35;transform:scale(1)} 50%{opacity:0;transform:scale(1.6)} }
+            .pPulse2 { animation: pulse2 2.2s ease-out infinite; transform-origin:center; transform-box:fill-box; }
             @keyframes wPulse { 0%,100%{opacity:0.5;transform:scale(1)} 50%{opacity:0.15;transform:scale(1.8)} }
             .wRing { animation: wPulse 1.1s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
           `}</style>
@@ -363,85 +242,17 @@ export default function MapCanvas({
         </defs>
 
         {/* Fixed background */}
-        <rect width={SVG_W} height={SVG_H} fill={C.canvas}/>
+        <rect width={SVG_W} height={SVG_H} fill="#2a2a2a"/>
 
         <g transform={`translate(${tx.x},${tx.y}) scale(${tx.s})`}>
 
-          {/* Building outline border */}
-          <rect x="1" y="1" width={SVG_W-2} height={SVG_H-2}
-            fill="none" stroke={C.border} strokeWidth="1" rx="1"/>
-
-          {/* ── Rooms ──────────────────────────────────────────────── */}
-          {rooms.map(room => {
-            const hl          = room.id === highlightRoomId
-            const status      = roomStatuses?.[room.id]
-            const statusColor = status === 'vrij' ? '#4caf50' : status === 'bezet' ? '#f44336' : status === 'gesloten' ? '#999999' : null
-            // In accessibility mode elevator rooms get a blue tint
-            const isAccessElev = accessMode && room.type === 'elevator'
-            return (
-              <g key={room.id}>
-                <rect x={room.x} y={room.y} width={room.w} height={room.h}
-                  fill={roomFill(room.type, hl, status, C, isAccessElev)}
-                  stroke={roomStroke(room.type, isAccessElev)}
-                  strokeWidth="0.8"/>
-
-                {/* Status indicator dot */}
-                {statusColor && room.type === 'room' && room.w >= 40 && room.h >= 30 && (
-                  <circle cx={room.x + room.w - 8} cy={room.y + 8} r="5"
-                    fill={statusColor} fillOpacity="0.85"/>
-                )}
-
-                {room.type === 'stairs' && (
-                  <rect x={room.x} y={room.y} width={room.w} height={room.h}
-                    fill="url(#hatch)" pointerEvents="none"/>
-                )}
-
-                {room.label && room.type !== 'corridor' && (
-                  <text
-                    x={room.x + room.w / 2}
-                    y={room.y + room.h / 2 + (room.type === 'room' ? 6 : 10)}
-                    textAnchor="middle"
-                    fill={room.type === 'stairs' || room.type === 'elevator'
-                      ? C.labelSpecial : C.labelDim}
-                    fontSize={room.type === 'stairs' ? 6 : room.type === 'elevator' ? 7 : 9}
-                    fontFamily="'Space Mono',monospace"
-                    letterSpacing="0.5"
-                    pointerEvents="none"
-                  >
-                    {room.label.toUpperCase()}
-                  </text>
-                )}
-                {room.type === 'elevator' && (
-                  <text x={room.x + room.w/2} y={room.y + room.h/2 - 4}
-                    textAnchor="middle" dominantBaseline="central"
-                    fontSize="18" pointerEvents="none">
-                    {/* In accessibility mode show ♿ instead of 🛗 */}
-                    {isAccessElev ? '♿' : '🛗'}
-                  </text>
-                )}
-                {room.type === 'stairs' && (
-                  <text x={room.x + room.w/2} y={room.y + room.h/2 - 4}
-                    textAnchor="middle" dominantBaseline="central"
-                    fontSize="12" pointerEvents="none">🪜</text>
-                )}
-              </g>
-            )
-          })}
-
-          {/* ── Walls ──────────────────────────────────────────────── */}
-          {walls.map((w, i) => (
-            <line key={i} x1={w.x1} y1={w.y1} x2={w.x2} y2={w.y2}
-              stroke={w.dim ? 'rgba(224,64,251,0.25)' : '#e040fb'}
-              strokeWidth={w.dim ? 0.8 : 1.5}/>
-          ))}
-
-          {/* ── Door gaps ──────────────────────────────────────────── */}
-          {doors.map((d, i) => (
-            <rect key={i}
-              x={d.x - d.w/2} y={d.y - 1.5}
-              width={d.w} height={3}
-              fill={C.doorGap}/>
-          ))}
+          {/* ── Floor plan image ───────────────────────────────────── */}
+          <image
+            href={FLOOR_IMAGES[floor]}
+            x="0" y="0"
+            width={SVG_W} height={SVG_H}
+            preserveAspectRatio="none"
+          />
 
           {/* ── Route — Situm-style dots ────────────────────────────── */}
           {routePath && (
@@ -465,6 +276,31 @@ export default function MapCanvas({
                 filter="url(#glow)"/>
             </g>
           )}
+
+          {/* ── Stair transition markers ─────────────────────────────────── */}
+          {/* Small 🪜 badge at the exact staircase waypoint so it's crystal-clear
+              where the route enters or leaves via the stairs on this floor. */}
+          {stairMarkers.map((m, i) => (
+            <g key={i} transform={`translate(${m.x},${m.y})`} pointerEvents="none">
+              {/* Outer pulse ring */}
+              <circle r="13" fill="rgba(255,200,0,0.15)"
+                stroke="#f59e0b" strokeWidth="1.5" className="pPulse"/>
+              {/* Inner badge */}
+              <circle r="8" fill="#f59e0b" opacity="0.9"/>
+              <text textAnchor="middle" dominantBaseline="central"
+                fontSize="9" dy="0.5" pointerEvents="none">🪜</text>
+              {/* Label */}
+              <g transform="translate(0,-22)" pointerEvents="none">
+                <rect x="-18" y="-7" width="36" height="13" rx="3"
+                  fill="#f59e0b" opacity="0.95"/>
+                <text textAnchor="middle" y="0" dominantBaseline="central"
+                  fontSize="7" fill="#1a1a1a"
+                  fontFamily="'DM Sans',sans-serif" fontWeight="700">
+                  Trap
+                </text>
+              </g>
+            </g>
+          ))}
 
           {/* ── POI markers ────────────────────────────────────────── */}
           {floorPois.map(poi => {
@@ -495,6 +331,12 @@ export default function MapCanvas({
                 onMouseLeave={() => onPoiHover(null)}
                 style={{ cursor: 'pointer' }}>
 
+                {/* Outer expanding pulse — origin only, "you are here" signal */}
+                {isOrigin && (
+                  <circle className="pPulse2" r="22"
+                    fill="rgba(76,175,80,0.18)" stroke="#4caf50" strokeWidth="1"/>
+                )}
+
                 {(isOrigin || isDest) && (
                   <circle className="pPulse" r="18"
                     fill="none" stroke={stroke} strokeWidth="1.5"/>
@@ -523,6 +365,22 @@ export default function MapCanvas({
                       {poi.label}
                     </text>
                   </g>
+                )}
+
+                {/* "Je bent hier" badge — rendered last so it sits on top */}
+                {isOrigin && (
+                  <text
+                    textAnchor="middle"
+                    y="-46"
+                    fontSize="6.5"
+                    fill="#4caf50"
+                    fontFamily="'DM Sans',sans-serif"
+                    fontWeight="700"
+                    letterSpacing="0.04em"
+                    pointerEvents="none"
+                  >
+                    📍 Je bent hier
+                  </text>
                 )}
               </g>
             )
