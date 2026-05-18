@@ -16,7 +16,10 @@ export const SVG_H = 686
 // Y-coordinate of the main horizontal corridor on each floor (routing anchor).
 // Floor 3 uses a diagonal corridor — CORRIDOR_Y[3] is the Y of the stair entry
 // at the top of that diagonal (used for cross-floor stair connections).
-export const CORRIDOR_Y = { 0: 404, 1: 404, 2: 485, 3: 165 }
+// Measured from actual floor-plan images: corridor centres sit ~26 px above the
+// old values (404/485) which landed on the SOUTH WALL of the corridor, making
+// routes trace the room-boundary line instead of going through open hallway.
+export const CORRIDOR_Y = { 0: 378, 1: 378, 2: 475, 3: 165 }
 
 // X-coordinate of the elevator shaft (floors 0–2 only; floor 3 has its own lift)
 export const ELEVATOR_X = 400
@@ -27,8 +30,10 @@ export const ELEVATOR_X = 400
 // Each floor's west stairwell x must represent the SAME physical shaft across floors.
 // The centre staircase (≈x=248–300) runs through floors 0–3; the far-left arm
 // (x≈100/130) is a separate corridor arm, not a stairwell that connects all floors.
-export const STAIR_WEST = { 0: 248, 1: 265, 2: 300, 3: 349 }
-export const STAIR_EAST = { 0: 640, 1: 632, 2: 590, 3: 349 }
+// West stair x adjusted for floor 2 (285 matches stair icon in floor-2.png).
+// East stair x corrected for floors 0/1: images show stair at ~595/605, not 640/632.
+export const STAIR_WEST = { 0: 248, 1: 265, 2: 285, 3: 349 }
+export const STAIR_EAST = { 0: 595, 1: 605, 2: 590, 3: 349 }
 
 // ── Floor 3 diagonal corridor ─────────────────────────────────────────────────
 // Floor 3 is an angled building whose corridor runs diagonally (top-left → bottom-right).
@@ -144,58 +149,65 @@ export const ROOM_DOORS = {
 //             at the POI's y level),
 //         roomId, category, desc, status.
 //
-// Corridor Y reference:  floor 0/1 = 404 | floor 2 = 485 | floor 3 = diagonal
+// Corridor Y reference:  floor 0/1 = 378 | floor 2 = 475 | floor 3 = diagonal
 export const ALL_POIS = [
 
-  // ── Begane Grond (0) — main corridor at y=404, x=64–656 ───────────────────
+  // ── Begane Grond (0) — main corridor at y=378 ─────────────────────────────
   { id:'poi-portier',  label:'Portier',          icon:'🛡️', floor:0, x:110, y:451, jx:110, roomId:'bg-lw-i2',      category:'faciliteiten', desc:'Toegangscontrole & beveiliging',        status:'vrij'     },
   { id:'poi-receptie', label:'Receptie',         icon:'ℹ️',  floor:0, x:350, y:432, jx:350, roomId:'bg-nw1',        category:'faciliteiten', desc:'Ontvangst, info & loketdiensten',       status:'vrij'     },
   { id:'poi-kantine',  label:'Kantine',          icon:'🍽️', floor:0, x:595, y:289, jx:595, roomId:'bg-rn3',        category:'eten',         desc:'Kantine & foodcourt 08:00–17:00',       status:'vrij'     },
-  { id:'poi-wc-bg',    label:'Toiletten BG',     icon:'🚻',  floor:0, x:190, y:404, jx:190, roomId:'bg-wc',         category:'faciliteiten', desc:'Toiletten begane grond',                status:'vrij'     },
+  { id:'poi-wc-bg',    label:'Toiletten BG',     icon:'🚻',  floor:0, x:190, y:378, jx:190, roomId:'bg-wc',         category:'faciliteiten', desc:'Toiletten begane grond',                status:'vrij'     },
   { id:'poi-aula',     label:'Aula',             icon:'🎭',  floor:0, x:370, y:451, jx:370, roomId:'bg-rs2',        category:'onderwijs',    desc:'Grote aula, evenementen & presentaties', status:'bezet'   },
   { id:'poi-info',     label:'Informatiedesk',   icon:'📋',  floor:0, x:510, y:451, jx:510, roomId:'bg-rs3',        category:'faciliteiten', desc:'Open dag informatiepunt',               status:'vrij'     },
-  { id:'poi-lift-0',   label:'Lift',             icon:'🛗',  floor:0, x:400, y:404, jx:400, roomId:'bg-lift',       category:'transport',    desc:'Lift naar alle verdiepingen'                              },
-  { id:'poi-trap-0l',  label:'Trap West',        icon:'🪜',  floor:0, x:248, y:404, jx:248, roomId:'bg-trap-l',     category:'transport',    desc:'Trappenhuis west'                                         },
-  { id:'poi-trap-0r',  label:'Trap Oost',        icon:'🪜',  floor:0, x:640, y:404, jx:640, roomId:'bg-trap-r',     category:'transport',    desc:'Trappenhuis oost'                                         },
+  { id:'poi-lift-0',   label:'Lift',             icon:'🛗',  floor:0, x:400, y:378, jx:400, roomId:'bg-lift',       category:'transport',    desc:'Lift naar alle verdiepingen'                              },
+  { id:'poi-trap-0l',  label:'Trap West',        icon:'🪜',  floor:0, x:248, y:378, jx:248, roomId:'bg-trap-l',     category:'transport',    desc:'Trappenhuis west'                                         },
+  { id:'poi-trap-0r',  label:'Trap Oost',        icon:'🪜',  floor:0, x:595, y:378, jx:595, roomId:'bg-trap-r',     category:'transport',    desc:'Trappenhuis oost'                                         },
 
-  // ── 1e Verdieping (1) — main corridor at y=404, x=95–658 ──────────────────
-  { id:'poi-sd',       label:'Software Dev',     icon:'💻',  floor:1, x:215, y:95,  jx:280, jy:195, roomId:'1e-sd',         category:'onderwijs',    desc:'Software Development, lokaal 1.02',     status:'vrij'     },
-  { id:'poi-av',       label:'Audio Visueel',    icon:'🎬',  floor:1, x:337, y:80,  jx:280, roomId:'1e-av',         category:'onderwijs',    desc:'Audio Visueel Design, lokaal 1.03',     status:'bezet'    },
-  { id:'poi-ga',       label:'Game Artist',      icon:'🎮',  floor:1, x:337, y:148, jx:280, roomId:'1e-ga',         category:'onderwijs',    desc:'Game Artist, lokaal 1.04',              status:'vrij'     },
-  { id:'poi-mv',       label:'Media Vormgever',  icon:'🎨',  floor:1, x:620, y:148, jx:632, eastWing:{ entryX:632, entryY:148, exitX:632, exitY:404 }, roomId:'1e-mv', category:'onderwijs', desc:'Media Vormgever, lokaal 1.05', status:'gesloten' },
+  // ── 1e Verdieping (1) — main corridor at y=378 ─────────────────────────────
+  // jx changed 280→248: NS-corridor centre is at x≈248 (not 280 which routes through GA room interior)
+  // jy=195 added to av+ga so the route goes DOWN inside the room to the corridor-opening at y=195,
+  //  then LEFT to the NS corridor, instead of cutting horizontally through room walls.
+  { id:'poi-sd',       label:'Software Dev',     icon:'💻',  floor:1, x:215, y:95,  jx:248, jy:195, roomId:'1e-sd',         category:'onderwijs',    desc:'Software Development, lokaal 1.02',     status:'vrij'     },
+  { id:'poi-av',       label:'Audio Visueel',    icon:'🎬',  floor:1, x:337, y:80,  jx:248, jy:195, roomId:'1e-av',         category:'onderwijs',    desc:'Audio Visueel Design, lokaal 1.03',     status:'bezet'    },
+  { id:'poi-ga',       label:'Game Artist',      icon:'🎮',  floor:1, x:337, y:148, jx:248, jy:195, roomId:'1e-ga',         category:'onderwijs',    desc:'Game Artist, lokaal 1.04',              status:'vrij'     },
+  { id:'poi-mv',       label:'Media Vormgever',  icon:'🎨',  floor:1, x:620, y:148, jx:605, eastWing:{ entryX:632, entryY:148, exitX:605, exitY:378 }, roomId:'1e-mv', category:'onderwijs', desc:'Media Vormgever, lokaal 1.05', status:'gesloten' },
   { id:'poi-lokaal',   label:'Lokaal 1.01',      icon:'🚪',  floor:1, x:92,  y:458, jx:100, roomId:'1e-lokaal',     category:'onderwijs',    desc:'Algemeen leslokaal',                    status:'gesloten' },
   { id:'poi-pet',      label:'Podium & Event',   icon:'🎤',  floor:1, x:307, y:458, jx:307, roomId:'1e-pet',        category:'onderwijs',    desc:'Podium & Evenementen Techniek',         status:'vrij'     },
   { id:'poi-ss',       label:'Sign Specialist',  icon:'🖼️', floor:1, x:550, y:458, jx:550, roomId:'1e-ss',         category:'onderwijs',    desc:'Sign Specialist, printlokaal',          status:'bezet'    },
-  { id:'poi-lift-1',   label:'Lift',             icon:'🛗',  floor:1, x:400, y:404, jx:400, roomId:'1e-lift',       category:'transport',    desc:'Lift naar alle verdiepingen'                              },
-  { id:'poi-trap-1l',  label:'Trap West',        icon:'🪜',  floor:1, x:265, y:404, jx:265, roomId:'1e-trap-l',     category:'transport',    desc:'Trappenhuis west'                                         },
-  { id:'poi-trap-1r',  label:'Trap Oost',        icon:'🪜',  floor:1, x:632, y:404, jx:632, roomId:'1e-trap-r',     category:'transport',    desc:'Trappenhuis oost'                                         },
+  { id:'poi-lift-1',   label:'Lift',             icon:'🛗',  floor:1, x:400, y:378, jx:400, roomId:'1e-lift',       category:'transport',    desc:'Lift naar alle verdiepingen'                              },
+  { id:'poi-trap-1l',  label:'Trap West',        icon:'🪜',  floor:1, x:265, y:378, jx:265, roomId:'1e-trap-l',     category:'transport',    desc:'Trappenhuis west'                                         },
+  { id:'poi-trap-1r',  label:'Trap Oost',        icon:'🪜',  floor:1, x:605, y:378, jx:605, roomId:'1e-trap-r',     category:'transport',    desc:'Trappenhuis oost'                                         },
 
-  // ── 2e Verdieping (2) — main corridor at y=485, x=124–608 ─────────────────
-  // Above-corridor (y < 485): y_new = y_old × (485/420)
-  // Below-corridor (y > 485): y_new = 485 + (y_old − 485) (kept as-is distance)
-  { id:'poi-mr',       label:'Media Redactie',   icon:'📰',  floor:2, x:90,  y:355, jx:130, roomId:'2e-mr',         category:'onderwijs',    desc:'Media Redactie, lokaal 2.01',           status:'vrij'     },
-  { id:'poi-cp',       label:'Creatieve Prod.',  icon:'🎞️', floor:2, x:620, y:213, jx:653, eastWing:{ entryX:653, entryY:213, exitX:590, exitY:485 }, roomId:'2e-cp',  category:'onderwijs',    desc:'Creatieve Productie, studio',           status:'bezet'    },
-  { id:'poi-id',       label:'Immersive Design', icon:'🥽',  floor:2, x:90,  y:430, jx:130, roomId:'2e-id',         category:'onderwijs',    desc:'Immersive Designer, XR lab',            status:'vrij'     },
+  // ── 2e Verdieping (2) — main corridor at y=475 ────────────────────────────
+  { id:'poi-mr',       label:'Media Redactie',   icon:'📰',  floor:2, x:90,  y:355, jx:160, roomId:'2e-mr',         category:'onderwijs',    desc:'Media Redactie, lokaal 2.01',           status:'vrij'     },
+  { id:'poi-cp',       label:'Creatieve Prod.',  icon:'🎞️', floor:2, x:620, y:213, jx:653, eastWing:{ entryX:653, entryY:213, exitX:590, exitY:475 }, roomId:'2e-cp',  category:'onderwijs',    desc:'Creatieve Productie, studio',           status:'bezet'    },
+  { id:'poi-id',       label:'Immersive Design', icon:'🥽',  floor:2, x:90,  y:430, jx:160, roomId:'2e-id',         category:'onderwijs',    desc:'Immersive Designer, XR lab',            status:'vrij'     },
   { id:'poi-wc-2',     label:'Toiletten 2e',     icon:'🚻',  floor:2, x:100, y:528, jx:130, roomId:'2e-toiletten',  category:'faciliteiten', desc:'Toiletten tweede verdieping',           status:'vrij'     },
   { id:'poi-rv',       label:'Ruimtelijk VMG',   icon:'🏗️', floor:2, x:322, y:528, jx:322, roomId:'2e-rv',         category:'onderwijs',    desc:'Ruimtelijk Visueel Merchandiser',       status:'gesloten' },
   { id:'poi-aam',      label:'All Around Media', icon:'📡',  floor:2, x:530, y:528, jx:530, roomId:'2e-aam',        category:'onderwijs',    desc:'All Around Mediamaker, lokaal 2.05',    status:'vrij'     },
-  { id:'poi-lift-2',   label:'Lift',             icon:'🛗',  floor:2, x:400, y:485, jx:400, roomId:'2e-lift',       category:'transport',    desc:'Lift naar alle verdiepingen'                              },
-  { id:'poi-trap-2l',  label:'Trap West',        icon:'🪜',  floor:2, x:300, y:485, jx:300, roomId:'2e-trap-l',     category:'transport',    desc:'Trappenhuis west'                                         },
-  { id:'poi-trap-2r',  label:'Trap Oost',        icon:'🪜',  floor:2, x:590, y:485, jx:590, roomId:'2e-trap-r',     category:'transport',    desc:'Trappenhuis oost'                                         },
+  { id:'poi-lift-2',   label:'Lift',             icon:'🛗',  floor:2, x:400, y:475, jx:400, roomId:'2e-lift',       category:'transport',    desc:'Lift naar alle verdiepingen'                              },
+  { id:'poi-trap-2l',  label:'Trap West',        icon:'🪜',  floor:2, x:285, y:475, jx:285, roomId:'2e-trap-l',     category:'transport',    desc:'Trappenhuis west'                                         },
+  { id:'poi-trap-2r',  label:'Trap Oost',        icon:'🪜',  floor:2, x:590, y:475, jx:590, roomId:'2e-trap-r',     category:'transport',    desc:'Trappenhuis oost'                                         },
 
   // ── 3e Verdieping (3) — diagonal corridor (see FLOOR3_DIAG) ───────────────
   // The building is a rotated rectangle whose corridor runs diagonally top-left → bottom-right.
   // POI positions are placed relative to the diagonal corridor at each POI's y level.
   // jx = diag3X(poi.y) — the corridor x at that y (calculated from the formula above).
-  { id:'poi-radio',    label:'Radio Studio',     icon:'🎙️', floor:3, x:295, y:200, jx:354, roomId:'3e-left-top',   category:'onderwijs',    desc:'Radio productie studio',               status:'vrij'      },
-  { id:'poi-tv',       label:'TV Studio',        icon:'📺',  floor:3, x:462, y:305, jx:403, roomId:'3e-right-mid',  category:'onderwijs',    desc:'Televisie productiestudio',             status:'bezet'     },
-  { id:'poi-post',     label:'Post-productie',   icon:'🎞️', floor:3, x:470, y:355, jx:422, roomId:'3e-right-mid',  category:'onderwijs',    desc:'Video editing & color grading',        status:'vrij'      },
-  { id:'poi-xr',       label:'XR Lab',           icon:'🥽',  floor:3, x:478, y:415, jx:440, roomId:'3e-right-bot',  category:'onderwijs',    desc:'Extended reality lab (VR/AR)',          status:'gesloten'  },
-  { id:'poi-pod',      label:'Podcaststudio',    icon:'🎧',  floor:3, x:362, y:415, jx:440, roomId:'3e-left-mid',   category:'onderwijs',    desc:'Podcast opnamestudio',                 status:'vrij'      },
-  { id:'poi-wc-3',     label:'Toiletten 3e',     icon:'🚻',  floor:3, x:360, y:345, jx:419, roomId:'3e-left-mid',   category:'faciliteiten', desc:'Toiletten derde verdieping',           status:'vrij'      },
-  { id:'poi-lift-3',   label:'Lift',             icon:'🛗',  floor:3, x:421, y:385, jx:421, roomId:'3e-diag-gang',  category:'transport',    desc:'Lift naar alle verdiepingen'                               },
-  { id:'poi-trap-3l',  label:'Trap',             icon:'🪜',  floor:3, x:349, y:165, jx:349, roomId:'3e-diag-gang',  category:'transport',    desc:'Trappenhuis'                                               },
-  { id:'poi-trap-3r',  label:'Trap Zuid',        icon:'🪜',  floor:3, x:427, y:445, jx:427, roomId:'3e-diag-gang',  category:'transport',    desc:'Trappenhuis south exit'                                    },
+  //
+  // doorX: the corridor-wall boundary for this room at poi.y.
+  //   Left  rooms (poi.x < corridor centre): doorX = diag3X(poi.y) - 38  (left  corridor wall)
+  //   Right rooms (poi.x > corridor centre): doorX = diag3X(poi.y) + 38  (right corridor wall)
+  // Routing goes POI → doorX (within room) → corridor centre (within corridor),
+  // which prevents the path from drawing through the diagonal corridor walls.
+  { id:'poi-radio',    label:'Radio Studio',     icon:'🎙️', floor:3, x:295, y:200, jx:354, doorX:318, roomId:'3e-left-top',   category:'onderwijs',    desc:'Radio productie studio',               status:'vrij'      },
+  { id:'poi-tv',       label:'TV Studio',        icon:'📺',  floor:3, x:462, y:305, jx:403, doorX:424, roomId:'3e-right-mid',  category:'onderwijs',    desc:'Televisie productiestudio',             status:'bezet'     },
+  { id:'poi-post',     label:'Post-productie',   icon:'🎞️', floor:3, x:470, y:355, jx:422, doorX:439, roomId:'3e-right-mid',  category:'onderwijs',    desc:'Video editing & color grading',        status:'vrij'      },
+  { id:'poi-xr',       label:'XR Lab',           icon:'🥽',  floor:3, x:478, y:415, jx:440, doorX:456, roomId:'3e-right-bot',  category:'onderwijs',    desc:'Extended reality lab (VR/AR)',          status:'gesloten'  },
+  { id:'poi-pod',      label:'Podcaststudio',    icon:'🎧',  floor:3, x:362, y:415, jx:440, doorX:380, roomId:'3e-left-mid',   category:'onderwijs',    desc:'Podcast opnamestudio',                 status:'vrij'      },
+  { id:'poi-wc-3',     label:'Toiletten 3e',     icon:'🚻',  floor:3, x:360, y:345, jx:419, doorX:360, roomId:'3e-left-mid',   category:'faciliteiten', desc:'Toiletten derde verdieping',           status:'vrij'      },
+  { id:'poi-lift-3',   label:'Lift',             icon:'🛗',  floor:3, x:421, y:385, jx:421,            roomId:'3e-diag-gang',  category:'transport',    desc:'Lift naar alle verdiepingen'                               },
+  { id:'poi-trap-3l',  label:'Trap',             icon:'🪜',  floor:3, x:349, y:165, jx:349,            roomId:'3e-diag-gang',  category:'transport',    desc:'Trappenhuis'                                               },
+  { id:'poi-trap-3r',  label:'Trap Zuid',        icon:'🪜',  floor:3, x:427, y:445, jx:427,            roomId:'3e-diag-gang',  category:'transport',    desc:'Trappenhuis south exit'                                    },
 ]
 
 // ── East-wing connection (floor 2) ───────────────────────────────────────────

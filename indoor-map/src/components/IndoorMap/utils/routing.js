@@ -165,18 +165,41 @@ export function computeRoute(originId, destinationId, options = {}) {
   steps.push({ icon: 'start', text: t.start, type: 'start' })
 
   // ── Helper: get from any floor-3 POI to the diagonal corridor entry ────────
-  // Returns waypoints that go from the POI to its corridor junction on the diagonal.
+  // Two-step path prevents the route from drawing through the diagonal corridor walls:
+  //   1. POI → doorX (horizontal, stays within the room)
+  //   2. doorX → corridor centre (horizontal, stays within the corridor)
+  // Transport POIs that have no doorX go directly to the corridor centre (they
+  // are already sitting inside the corridor strip).
   function floor3ToCorridor(poi) {
     const cx = f3X(poi.y)
-    if (poi.x !== cx) return [{ x: cx, y: poi.y, floor: 3 }]
-    return []
+    const wps = []
+    if (poi.doorX !== undefined && poi.doorX !== poi.x) {
+      // Step 1: move to the room-side corridor wall (stays within the room)
+      wps.push({ x: poi.doorX, y: poi.y, floor: 3 })
+    }
+    // Step 2: move to corridor centre (stays within the corridor)
+    const lastX = poi.doorX !== undefined ? poi.doorX : poi.x
+    if (cx !== lastX) {
+      wps.push({ x: cx, y: poi.y, floor: 3 })
+    }
+    return wps
   }
 
   // ── Helper: get from the diagonal corridor into a floor-3 POI ──────────────
+  // Mirror of floor3ToCorridor: corridor centre → doorX → POI.
   function floor3FromCorridor(poi) {
     const cx = f3X(poi.y)
-    if (poi.x !== cx) return [{ x: poi.x, y: poi.y, floor: 3 }]
-    return []
+    const wps = []
+    if (poi.doorX !== undefined && poi.doorX !== cx) {
+      // Step 1: move to the room-side corridor wall (stays within the corridor)
+      wps.push({ x: poi.doorX, y: poi.y, floor: 3 })
+    }
+    // Step 2: move to the POI (stays within the room)
+    const lastX = poi.doorX !== undefined ? poi.doorX : cx
+    if (poi.x !== lastX) {
+      wps.push({ x: poi.x, y: poi.y, floor: 3 })
+    }
+    return wps
   }
 
   // ── Walk from origin to main corridor ──────────────────────────────────────
