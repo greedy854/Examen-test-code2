@@ -17,13 +17,17 @@ function pinchDist(t1, t2) {
   return Math.sqrt(dx * dx + dy * dy)
 }
 
-// Renders the SVG floor plan with pan, zoom, route overlay, and POI markers
+// Renders the SVG floor plan with pan, zoom, route overlay, POI markers, and room label slots
 export default function MapCanvas({
   floor, pois, route, origin, destination,
   onPoiClick, hoveredPoi, onPoiHover,
   centerOn, isDark, walkerPos,
   highlightPoiIds,
   accessMode,
+  // Room label slots
+  roomSlots,
+  roomLabels,
+  onRoomSlotClick,
 }) {
   // Ref to the outer wrapper div — used to attach wheel and touch listeners
   const wrapRef  = useRef(null)
@@ -385,6 +389,136 @@ export default function MapCanvas({
               </g>
             )
           })}
+          {/* ── Room label slots ──────────────────────────────────────────── */}
+          {/* Small editable badge at the centre of every room block.
+              Click → floating text input in IndoorMap (via onRoomSlotClick).
+              Shows saved class name or a pencil icon when empty. */}
+          {roomSlots && roomSlots.map(slot => {
+            // roomLabels: waarden opgeslagen via de UI-editor (localStorage)
+            // slot.icon / slot.iconSrc: statisch ingesteld in building.js
+            //
+            // Prioriteit (hoogste wint):
+            //   1. entry.iconUrl  → geüploade afbeelding via UI
+            //   2. entry.icon     → emoji gekozen via UI
+            //   3. slot.iconSrc   → afbeeldingspad in building.js
+            //   4. slot.icon      → emoji in building.js
+            //   5. ✏️ fallback
+            const entry    = roomLabels?.[slot.id]
+
+            // Bepaal wat er getoond wordt
+            let displayImgSrc = null
+            let displayEmoji  = null
+            if (entry?.iconUrl)         displayImgSrc = entry.iconUrl
+            else if (entry?.icon)       displayEmoji  = entry.icon
+            else if (slot.iconSrc)      displayImgSrc = slot.iconSrc
+            else if (slot.icon)         displayEmoji  = slot.icon
+
+            const label    = entry?.label ?? null
+            const hasLabel = !!label
+            const hasImg   = !!displayImgSrc
+            const hasEmoji = !!displayEmoji
+            const hasIcon  = hasImg || hasEmoji
+            const hasAny   = hasLabel || hasIcon
+
+            // Image size inside the badge (px in SVG units)
+            const imgSz  = hasLabel ? 14 : 18
+
+            // Badge dimensions
+            const badgeH = hasIcon && hasLabel ? imgSz + 10   // icon row + label row
+                         : hasIcon             ? imgSz + 4    // icon only
+                         :                       16           // label only / empty
+            const badgeW = hasLabel
+              ? Math.max(label.length * 3.6 + (hasIcon ? 20 : 10), hasIcon ? imgSz + 14 : 30)
+              : hasIcon ? imgSz + 8 : 28
+            const bx = -badgeW / 2
+            const by = -badgeH / 2
+
+            // Every badge gets three classes you can target in CSS / SCSS:
+            //   .room-slot          → all badges on all floors
+            //   .slot-<id>          → this specific room  (e.g. .slot-bg-nw1)
+            //   .floor-<n>          → all badges on floor n  (e.g. .floor-0)
+            const cls = `room-slot slot-${slot.id} floor-${floor}`
+            return (
+              <g
+                key={slot.id}
+                className={cls}
+                data-slot={slot.id}
+                transform={`translate(${slot.x},${slot.y})`}
+                style={{ cursor: 'pointer' }}
+                onClick={(e) => { if (!didDrag.current) onRoomSlotClick?.(slot.id, e) }}
+              >
+                {/* Badge pill */}
+                <rect
+                  className="slot-rect"
+                  x={bx}
+                  y={by}
+                  width={badgeW}
+                  height={badgeH}
+                  rx="4"
+                  fill={hasAny ? 'rgba(30,100,220,0.82)' : 'rgba(80,80,100,0.5)'}
+                  stroke={hasAny ? '#93c5fd' : '#aaa'}
+                  strokeWidth="0.75"
+                />
+
+                {/* Afbeelding of SVG-pad (iconUrl uit UI of iconSrc uit building.js) */}
+                {hasImg && (
+                  <image
+                    className="slot-icon"
+                    href={displayImgSrc}
+                    x={-imgSz / 2}
+                    y={hasLabel ? by + 2 : -imgSz / 2}
+                    width={imgSz}
+                    height={imgSz}
+                    preserveAspectRatio="xMidYMid meet"
+                    style={{ imageRendering: 'crisp-edges' }}
+                    pointerEvents="none"
+                  />
+                )}
+
+                {/* Emoji (gekozen via UI of ingesteld in building.js) */}
+                {hasEmoji && (
+                  <text
+                    className="slot-icon"
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    fontSize={hasLabel ? '9' : '11'}
+                    y={hasLabel ? by + 9 : 0}
+                    pointerEvents="none"
+                  >{displayEmoji}</text>
+                )}
+
+                {/* Label text — shown below icon (or centred when no icon) */}
+                {hasLabel && (
+                  <text
+                    className="slot-label"
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    fontSize="5.5"
+                    fill="#fff"
+                    fontFamily="'DM Sans',sans-serif"
+                    fontWeight="600"
+                    y={hasIcon ? by + badgeH - 5 : 0}
+                    pointerEvents="none"
+                  >{label}</text>
+                )}
+
+                {/* Fallback pencil when nothing is set */}
+                {!hasAny && (
+                  <text
+                    className="slot-label"
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    fontSize="6.5"
+                    fill="#fff"
+                    fontFamily="'DM Sans',sans-serif"
+                    fontWeight="400"
+                    pointerEvents="none"
+                  >✏️</text>
+                )}
+              </g>
+            )
+          })}
+
         </g>
       </svg>
 

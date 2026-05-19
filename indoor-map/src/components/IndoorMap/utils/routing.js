@@ -3,6 +3,7 @@ import {
   STAIR_WEST, STAIR_EAST, FLOORS,
   FLOOR3_DIAG, diag3X,
 } from '../data/building'
+import { astar, simplifyPath } from './walkability'
 
 // ── East-wing routing ─────────────────────────────────────────────────────────
 // Some POIs sit in a physically separate wing that is not connected to the main
@@ -66,7 +67,9 @@ function toJunction(poi, corridorY) {
     }
   } else {
     // Room is SOUTH (below) of corridor
-    if (poi.x !== poi.jx) wps.push({ x: poi.x, y: corridorY, floor: poi.floor })
+    // Step 1: horizontal within the room to the door x (jx) — stays inside the room
+    if (poi.x !== poi.jx) wps.push({ x: poi.jx, y: poi.y, floor: poi.floor })
+    // Step 2: vertical through the doorway up to the corridor centre
     wps.push({ x: poi.jx, y: corridorY, floor: poi.floor })
   }
   return wps
@@ -110,6 +113,10 @@ const dutchDir  = (dir) => dir === 'east' ? 'oostwaarts' : 'westwaarts'
 const englishDir = (dir) => dir === 'east' ? 'east'       : 'west'
 
 // ── Main routing function ─────────────────────────────────────────────────────
+// options.walkMaps  optional { [floor]: Uint8Array } — per-floor walkability bitmaps
+//                   built by walkability.js. When present, each per-floor segment
+//                   of the waypoint list is replaced by an A* path that stays
+//                   strictly within walkable (light-gray) pixels.
 export function computeRoute(originId, destinationId, options = {}) {
   const lang      = options.lang      === 'en'    ? 'en'    : 'nl'
   const transport = options.transport === 'stairs' ? 'stairs': 'elevator'
@@ -421,6 +428,39 @@ export function computeRoute(originId, destinationId, options = {}) {
   }
 
   steps.push({ icon: 'arrive', text: t.arrive, type: 'arrive' })
+
+  // ── A* walkability overlay ─────────────────────────────────────────────────
+  // When walkMaps are provided, replace each same-floor segment of the raw
+  // waypoint list with an A* path so the route only crosses light-gray pixels.
+  // Break waypoints (SVG "M") are preserved across the replacement.
+  const walkMaps = options.walkMaps
+  if (walkMaps) {
+    const refined = []
+    for (let i = 0; i < waypoints.length; i++) {
+      const wp = waypoints[i]
+      refined.push(wp)          // always keep the anchor waypoint
+
+      if (i === waypoints.length - 1) break
+      const next = waypoints[i + 1]
+
+      // Only apply A* within the same floor; skip break-segments (SVG M gaps)
+      if (wp.floor !== next.floor || next.break) continue
+      const m = walkMaps[wp.floor]
+      if (!m) continue
+
+      // Find A* path between wp and next
+      const path = astar(m, wp.x, wp.y, next.x, next.y)
+      if (!path || path.length < 2) continue   // fallback: keep original segment
+
+      // Insert the intermediate A* waypoints (skip first and last — already added)
+      const simplified = simplifyPath(path, m)
+      for (let k = 1; k < simplified.length - 1; k++) {
+        refined.push({ x: simplified[k].x, y: simplified[k].y, floor: wp.floor, astar: true })
+      }
+    }
+    // Swap in the refined waypoints
+    waypoints.splice(0, waypoints.length, ...refined)
+  }
 
   // ── Distance / time ────────────────────────────────────────────────────────
   let totalDist = 0

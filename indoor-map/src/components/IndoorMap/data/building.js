@@ -56,7 +56,24 @@ export function diag3X(y) {
   return Math.round(DIAG3_X0 + DIAG3_SLOPE * (y - DIAG3_Y0))
 }
 
-// Room rectangle definitions per floor (for SVG overlay / minimap, NOT used for routing)
+// ── Kamer-definities per verdieping ──────────────────────────────────────────
+//
+// Elk kamer-object heeft twee optionele icoon-velden die je hier in de code kunt
+// zetten — zonder de UI-editor te hoeven openen:
+//
+//   icon    – een emoji,  bijv.  icon: '💻'
+//   iconSrc – een pad naar een afbeelding of SVG in de /public map,
+//             bijv.  iconSrc: '/icons/software.svg'
+//
+// Prioriteitsvolgorde (hoogste wint):
+//   1. Eigen afbeelding geüpload via de UI-editor  (opgeslagen in localStorage)
+//   2. Emoji gekozen via de UI-editor              (opgeslagen in localStorage)
+//   3. iconSrc  ingesteld in deze code             (altijd zichtbaar)
+//   4. icon     ingesteld in deze code             (altijd zichtbaar)
+//   5. ✏️ potlood-fallback                         (niets ingesteld)
+//
+// Tip: zet een afbeelding in de map  public/icons/  en gebruik  iconSrc: '/icons/naam.svg'
+// Tip: laat icon en iconSrc weg als je alleen via de UI wilt instellen.
 export const FLOOR_ROOMS = {
   0: [
     { id: 'bg-gang-ns', type: 'corridor', x: 248, y: 0,   w: 60,  h: 300, label: '' },
@@ -72,53 +89,53 @@ export const FLOOR_ROOMS = {
     { id: 'bg-lw-o4', type: 'room', x: 0, y: 425, w: 60, h: 90,  label: 'Lokaal' },
     { id: 'bg-lw-i1', type: 'room', x: 60, y: 155, w: 100, h: 180, label: 'Lokaal' },
     { id: 'bg-lw-i2', type: 'room', x: 60, y: 335, w: 100, h: 180, label: 'Lokaal' },
-    { id: 'bg-wc',     type: 'room',     x: 160, y: 295, w: 60,  h: 40,  label: 'WC' },
+    { id: 'bg-wc',     type: 'room',     x: 160, y: 295, w: 60,  h: 40,  label: 'WC',    icon: '🚻' },
     { id: 'bg-trap-l', type: 'stairs',   x: 220, y: 287, w: 56,  h: 56,  label: 'Trap' },
     { id: 'bg-lift',   type: 'elevator', x: 372, y: 287, w: 56,  h: 56,  label: 'Lift' },
     { id: 'bg-trap-r', type: 'stairs',   x: 730, y: 287, w: 56,  h: 56,  label: 'Trap' },
     { id: 'bg-gang',   type: 'corridor', x: 40,  y: 295, w: 755, h: 40,  label: '' },
     { id: 'bg-rn1', type: 'room', x: 395, y: 155, w: 80, h: 140, label: 'Lokaal' },
     { id: 'bg-rn2', type: 'room', x: 475, y: 155, w: 80, h: 140, label: 'Lokaal' },
-    { id: 'bg-rn3', type: 'room', x: 555, y: 155, w: 80, h: 140, label: 'Lokaal' },
+    { id: 'bg-rn3', type: 'room', x: 555, y: 155, w: 80, h: 140, label: 'Kantine', icon: '🍽️' },
     { id: 'bg-rn4', type: 'room', x: 635, y: 155, w: 80, h: 140, label: 'Lokaal' },
     { id: 'bg-rn5', type: 'room', x: 715, y: 155, w: 80, h: 140, label: 'Lokaal' },
     { id: 'bg-rs1', type: 'room', x: 160, y: 335, w: 140, h: 180, label: 'Lokaal' },
-    { id: 'bg-rs2', type: 'room', x: 300, y: 335, w: 140, h: 180, label: 'Lokaal' },
+    { id: 'bg-rs2', type: 'room', x: 300, y: 335, w: 140, h: 180, label: 'Aula',    icon: '🎭' },
     { id: 'bg-rs3', type: 'room', x: 440, y: 335, w: 140, h: 180, label: 'Lokaal' },
     { id: 'bg-rs4', type: 'room', x: 580, y: 335, w: 140, h: 180, label: 'Lokaal' },
   ],
   1: [
-    { id: '1e-sd',     label: 'Software Dev',    x: 5,   y: 5,   w: 350, h: 190, type: 'room' },
-    { id: '1e-av',     label: 'Audio Visueel',   x: 355, y: 5,   w: 210, h: 95,  type: 'room' },
-    { id: '1e-ga',     label: 'Game Artist',     x: 355, y: 100, w: 210, h: 95,  type: 'room' },
-    { id: '1e-mv',     label: 'Media Vormgever', x: 565, y: 5,   w: 230, h: 190, type: 'room' },
+    { id: '1e-sd',     label: 'Software Dev',    x: 5,   y: 5,   w: 350, h: 190, type: 'room', icon: '💻' },
+    { id: '1e-av',     label: 'Audio Visueel',   x: 355, y: 5,   w: 210, h: 95,  type: 'room', icon: '🎬' },
+    { id: '1e-ga',     label: 'Game Artist',     x: 355, y: 100, w: 210, h: 95,  type: 'room', icon: '🎮' },
+    { id: '1e-mv',     label: 'Media Vormgever', x: 565, y: 5,   w: 230, h: 190, type: 'room', icon: '🎨' },
     { id: '1e-gang',   label: '',                x: 5,   y: 195, w: 790, h: 130, type: 'corridor' },
     { id: '1e-trap-l', label: 'Trap',            x: 5,   y: 195, w: 80,  h: 130, type: 'stairs' },
     { id: '1e-lift',   label: 'Lift',            x: 360, y: 195, w: 80,  h: 130, type: 'elevator' },
     { id: '1e-trap-r', label: 'Trap',            x: 715, y: 195, w: 80,  h: 130, type: 'stairs' },
-    { id: '1e-lokaal', label: 'Lokaal 1.01',     x: 5,   y: 325, w: 175, h: 190, type: 'room' },
-    { id: '1e-pet',    label: 'Podium & Event',  x: 180, y: 325, w: 255, h: 190, type: 'room' },
-    { id: '1e-ss',     label: 'Sign Specialist', x: 435, y: 325, w: 360, h: 190, type: 'room' },
+    { id: '1e-lokaal', label: 'Lokaal 1.01',     x: 5,   y: 325, w: 175, h: 190, type: 'room', icon: '🚪' },
+    { id: '1e-pet',    label: 'Podium & Event',  x: 180, y: 325, w: 255, h: 190, type: 'room', icon: '🎤' },
+    { id: '1e-ss',     label: 'Sign Specialist', x: 435, y: 325, w: 360, h: 190, type: 'room', icon: '🖼️' },
   ],
   2: [
-    { id: '2e-mr',        label: 'Media Redactie',   x: 5,   y: 5,   w: 440, h: 190, type: 'room' },
-    { id: '2e-cp',        label: 'Creatieve Prod.',  x: 445, y: 5,   w: 350, h: 320, type: 'room' },
-    { id: '2e-id',        label: 'Immersive Design', x: 5,   y: 195, w: 440, h: 130, type: 'room' },
+    { id: '2e-mr',        label: 'Media Redactie',   x: 5,   y: 5,   w: 440, h: 190, type: 'room', icon: '📰' },
+    { id: '2e-cp',        label: 'Creatieve Prod.',  x: 445, y: 5,   w: 350, h: 320, type: 'room', icon: '🎞️' },
+    { id: '2e-id',        label: 'Immersive Design', x: 5,   y: 195, w: 440, h: 130, type: 'room', icon: '🥽' },
     { id: '2e-gang',      label: '',                 x: 5,   y: 325, w: 790, h: 90,  type: 'corridor' },
     { id: '2e-trap-l',    label: 'Trap',             x: 5,   y: 325, w: 80,  h: 90,  type: 'stairs' },
     { id: '2e-lift',      label: 'Lift',             x: 360, y: 325, w: 80,  h: 90,  type: 'elevator' },
     { id: '2e-trap-r',    label: 'Trap',             x: 715, y: 325, w: 80,  h: 90,  type: 'stairs' },
-    { id: '2e-toiletten', label: 'Toiletten',        x: 5,   y: 415, w: 195, h: 100, type: 'room' },
-    { id: '2e-rv',        label: 'Ruimtelijk VMG',   x: 200, y: 415, w: 245, h: 100, type: 'room' },
-    { id: '2e-aam',       label: 'All Around Media', x: 445, y: 415, w: 350, h: 100, type: 'room' },
+    { id: '2e-toiletten', label: 'Toiletten',        x: 5,   y: 415, w: 195, h: 100, type: 'room', icon: '🚻' },
+    { id: '2e-rv',        label: 'Ruimtelijk VMG',   x: 200, y: 415, w: 245, h: 100, type: 'room', icon: '🏗️' },
+    { id: '2e-aam',       label: 'All Around Media', x: 445, y: 415, w: 350, h: 100, type: 'room', icon: '📡' },
   ],
   3: [
     { id: '3e-diag-gang', type: 'corridor', x: 310, y: 140, w: 80, h: 310, label: '' },
-    { id: '3e-left-top',  type: 'room',     x: 225, y: 155, w: 85, h: 155, label: 'Studio' },
-    { id: '3e-left-mid',  type: 'room',     x: 245, y: 310, w: 95, h: 135, label: 'Studio' },
-    { id: '3e-right-top', type: 'room',     x: 390, y: 155, w: 85, h: 155, label: 'Studio' },
-    { id: '3e-right-mid', type: 'room',     x: 410, y: 310, w: 90, h: 135, label: 'Studio' },
-    { id: '3e-right-bot', type: 'room',     x: 430, y: 395, w: 90, h: 105, label: 'Studio' },
+    { id: '3e-left-top',  type: 'room',     x: 225, y: 155, w: 85, h: 155, label: 'Radio Studio',   icon: '🎙️' },
+    { id: '3e-left-mid',  type: 'room',     x: 245, y: 310, w: 95, h: 135, label: 'Podcaststudio', icon: '🎧' },
+    { id: '3e-right-top', type: 'room',     x: 390, y: 155, w: 85, h: 155, label: 'TV Studio',      icon: '📺' },
+    { id: '3e-right-mid', type: 'room',     x: 410, y: 310, w: 90, h: 135, label: 'Post-productie', icon: '🎞️' },
+    { id: '3e-right-bot', type: 'room',     x: 430, y: 395, w: 90, h: 105, label: 'XR Lab',         icon: '🥽' },
   ],
 }
 
@@ -216,6 +233,27 @@ export const ALL_POIS = [
 // east wing — and jumps (without drawing a line) to/from STAIR_EAST[2] in the
 // main building.  See routing.js for how this gap is handled.
 export const EAST_WING_2 = { entryX: 653, entryY: 410 }
+
+// ── Room slots ────────────────────────────────────────────────────────────────
+// One clickable slot per visible room block on every floor.
+// Position = centre of the FLOOR_ROOMS rectangle in SVG coordinates (0–800, 0–686).
+// Only type==='room' entries receive a slot; corridors/stairs/elevators are excluded.
+// Used by the class-label feature: click a slot → floating text input → label saved.
+export const ROOM_SLOTS = Object.fromEntries(
+  Object.entries(FLOOR_ROOMS).map(([floorId, rooms]) => [
+    Number(floorId),
+    rooms
+      .filter(r => r.type === 'room')
+      .map(r => ({
+        id:      r.id,
+        x:       Math.round(r.x + r.w / 2),
+        y:       Math.round(r.y + r.h / 2),
+        // Statische icoon-velden uit building.js (overschrijfbaar via UI-editor)
+        icon:    r.icon    ?? null,   // emoji, bijv. '💻'
+        iconSrc: r.iconSrc ?? null,   // afbeeldingspad, bijv. '/icons/software.svg'
+      })),
+  ])
+)
 
 // Category definitions for the filter tab strip
 export const CATEGORIES = [
