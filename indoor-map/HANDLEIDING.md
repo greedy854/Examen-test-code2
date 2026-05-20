@@ -1,413 +1,350 @@
 # Handleiding — Kaart aanpassen
 
-> **Voor wie?** Iedereen die lokalen een naam of icoon wil geven, kamers wil verplaatsen, of de badges visueel wil stijlen.
+> **Voor wie?** Iedereen die iconen wil wisselen, lokalen wil verplaatsen of begrijpt hoe de routing werkt.
 
 ---
 
 ## Inhoudsopgave
 
-1. [Icoon en naam instellen via de kaart (geen code nodig)](#1-icoon-en-naam-instellen-via-de-kaart-geen-code-nodig)
-2. [Icoon instellen in de code](#2-icoon-instellen-in-de-code)
-3. [Eigen afbeelding of SVG instellen in de code](#3-eigen-afbeelding-of-svg-instellen-in-de-code)
-4. [Prioriteitsvolgorde — wat wint er?](#4-prioriteitsvolgorde--wat-wint-er)
-5. [Emoji-palet uitbreiden (UI-kiezer)](#5-emoji-palet-uitbreiden-ui-kiezer)
-6. [Kamers verplaatsen of toevoegen (coördinaten)](#6-kamers-verplaatsen-of-toevoegen-coördinaten)
+1. [Icoon van een lokaal wisselen](#1-icoon-van-een-lokaal-wisselen)
+2. [Foto of SVG als icoon instellen](#2-foto-of-svg-als-icoon-instellen)
+3. [De 10 lokalen met iconen — overzicht](#3-de-10-lokalen-met-iconen--overzicht)
+4. [Routing-coördinaten aanpassen (jx / jy)](#4-routing-coördinaten-aanpassen-jx--jy)
+5. [Lokaal verplaatsen of toevoegen](#5-lokaal-verplaatsen-of-toevoegen)
+6. [Walkability — hoe de route door de gang gaat](#6-walkability--hoe-de-route-door-de-gang-gaat)
 7. [CSS-klassen — badges per kamer stijlen](#7-css-klassen--badges-per-kamer-stijlen)
-8. [Bestaande POI-labels en iconen wijzigen](#8-bestaande-poi-labels-en-iconen-wijzigen)
 
 ---
 
-## 1. Icoon en naam instellen via de kaart (geen code nodig)
+## 1. Icoon van een lokaal wisselen
 
-Dit werkt rechtstreeks in de browser — je hoeft niets te programmeren.
+**Bestand:** `src/components/IndoorMap/data/building.js`
+
+Zoek het lokaal in `FLOOR_ROOMS` en pas het veld `iconSrc` aan.
+
+```js
+// Voorbeeld: Kantine-icoon wisselen
+{ id: 'bg-rn3', label: 'Kantine', type: 'room', x: 555, y: 155, w: 80, h: 140,
+  iconSrc: '/icons/kantine.svg'   // ← verander dit pad naar je eigen bestand
+},
+```
 
 **Stappen:**
 
-1. Open de kaart in de browser.
-2. Zoom in op de verdieping met het lokaal dat je wilt bewerken.
-3. Klik op het kleine **✏️-vakje** dat in het midden van elk lokaalblok staat.
-4. Er verschijnt een popup met twee tabbladen:
-   - **Emoji** — klik op een emoji uit het palet om die als icoon te kiezen.  
-     Klik op **✕** (eerste knop) om het icoon te verwijderen.
-   - **Eigen icoon** — klik op **📁 Afbeelding kiezen…** om een PNG, JPG, GIF of SVG van je computer te uploaden. Je ziet meteen een voorbeeld. Klik **✕ Verwijderen** om te wisselen.
-   - Het **tekstvak** onderaan — type hier de naam van het lokaal, bijv. `3.01 — Media`.
-5. Druk op **✓** of op **Enter** om op te slaan. Druk op **Escape** om te annuleren.
-6. Klik op 🗑 om alles (icoon én naam) in één keer te wissen.
+1. Zet je foto of SVG in de map `public/icons/`  
+   (bijv. `public/icons/mijn-kantine.jpg`)
+2. Verander het pad in `building.js`:  
+   `iconSrc: '/icons/mijn-kantine.jpg'`
+3. Sla op → de browser laadt de nieuwe afbeelding direct.
 
-> **Let op:** alles wordt opgeslagen in `localStorage` van de browser. De instellingen blijven bewaard zolang je dezelfde browser gebruikt, maar worden **niet** automatisch gesynchroniseerd naar andere apparaten. Wil je dat iconen altijd voor iedereen zichtbaar zijn? Stel ze dan in via de code (zie hieronder).
+> **Bestandsformaten:** SVG, PNG, JPG, GIF en WebP werken allemaal.  
+> SVG is het beste — het schaalt scherp op elk zoomniveau.
 
 ---
 
-## 2. Icoon instellen in de code
+## 2. Foto of SVG als icoon instellen
 
-**Bestand:** `src/components/IndoorMap/data/building.js`  
-**Object:** `FLOOR_ROOMS`
-
-Voeg het veld `icon` toe aan een kamer-object. De waarde is een emoji.
-
-```js
-// Voorbeeld: 1e verdieping
-1: [
-  { id: '1e-sd',  label: 'Software Dev',  type: 'room', x: 5,   y: 5,   w: 350, h: 190, icon: '💻' },
-  { id: '1e-av',  label: 'Audio Visueel', type: 'room', x: 355, y: 5,   w: 210, h: 95,  icon: '🎬' },
-  { id: '1e-ga',  label: 'Game Artist',   type: 'room', x: 355, y: 100, w: 210, h: 95,  icon: '🎮' },
-  { id: '1e-pet', label: 'Podium & Event',type: 'room', x: 180, y: 325, w: 255, h: 190, icon: '🎤' },
-  // ...
-],
-```
-
-Het `icon`-veld is **optioneel**. Laat je het weg, dan toont de badge het ✏️-potlood (klikbaar via de UI).
-
----
-
-## 3. Eigen afbeelding of SVG instellen in de code
-
-Wil je een eigen logo, icoon of SVG-bestand gebruiken in plaats van een emoji? Gebruik dan het veld `iconSrc`.
-
-### Stap 1 — Zet je bestand in de `public`-map
-
-Maak de map `public/icons/` aan en zet daar je bestanden in:
+### Structuur van de `public/icons/` map
 
 ```
 indoor-map/
 └── public/
     └── icons/
-        ├── software.svg
-        ├── camera.png
-        └── aula.svg
+        ├── kantine.svg          ← huidig placeholder
+        ├── aula.svg
+        ├── software-dev.svg
+        ├── audio-visueel.svg
+        ├── game-artist.svg
+        ├── media-vormgever.svg
+        ├── podium-event.svg
+        ├── media-redactie.svg
+        ├── immersive-design.svg
+        └── radio-studio.svg
 ```
 
-Ondersteunde bestandstypen: **SVG, PNG, JPG, GIF, WebP**
+Vervang een SVG-bestand door je eigen foto — zelfde bestandsnaam, geen code-aanpassing nodig.
 
-### Stap 2 — Verwijs ernaar in `building.js`
-
-Gebruik het pad vanaf de `public`-map (dus zonder `public/` ervoor):
+**Of** verander het pad in `building.js` als je een ander bestandsnaam gebruikt:
 
 ```js
-// Voorbeeld: afbeeldingspad instellen
-{ id: '1e-sd',  label: 'Software Dev',  type: 'room', ..., iconSrc: '/icons/software.svg' },
-{ id: '1e-av',  label: 'Audio Visueel', type: 'room', ..., iconSrc: '/icons/camera.png'  },
-{ id: 'bg-rs2', label: 'Aula',          type: 'room', ..., iconSrc: '/icons/aula.svg'    },
+// Van:
+iconSrc: '/icons/kantine.svg'
+
+// Naar:
+iconSrc: '/icons/mijn-foto.jpg'
 ```
 
-> **Tip SVG:** SVG-bestanden schalen perfect op elk zoomniveau en hebben geen kwaliteitsverlies. Gebruik ze bij voorkeur boven PNG/JPG.
+### Emoji als icoon (alternatief)
 
-### Combineren met een tekst-label
-
-Je kunt `iconSrc` én `label` tegelijk gebruiken. De badge toont dan het icoon bovenaan en de tekst eronder:
+Je kunt ook een emoji gebruiken in plaats van een afbeelding:
 
 ```js
-{ id: '1e-sd', label: 'Lokaal 1.02', type: 'room', ..., iconSrc: '/icons/software.svg' },
+{ id: 'bg-rn3', label: 'Kantine', type: 'room', ..., icon: '🍽️' }
 ```
+
+Als zowel `iconSrc` als `icon` aanwezig zijn, wint `iconSrc`.
 
 ---
 
-## 4. Prioriteitsvolgorde — wat wint er?
+## 3. De 10 lokalen met iconen — overzicht
 
-Er zijn meerdere manieren om een icoon in te stellen. Als er meerdere tegelijk actief zijn, wint altijd de hoogste in deze lijst:
+Dit zijn de enige lokalen die momenteel een badge tonen op de kaart.  
+Alle andere lokalen hebben geen badge (geen `iconSrc` of `icon` ingesteld).
 
-| Prioriteit | Bron | Hoe ingesteld |
-|---|---|---|
-| **1** (hoogste) | Eigen afbeelding via de UI-editor | Geüpload in de browser, opgeslagen in localStorage |
-| **2** | Emoji via de UI-editor | Gekozen in de browser, opgeslagen in localStorage |
-| **3** | `iconSrc` in `building.js` | Afbeeldingspad in de code |
-| **4** | `icon` in `building.js` | Emoji in de code |
-| **5** (laagste) | ✏️ potlood-fallback | Niets ingesteld |
+| Kamer-ID       | Lokaal           | Verdieping    | Huidig bestand             |
+|----------------|------------------|---------------|----------------------------|
+| `bg-rn3`       | Kantine          | Begane grond  | `/icons/kantine.svg`       |
+| `bg-rs2`       | Aula             | Begane grond  | `/icons/aula.svg`          |
+| `1e-sd`        | Software Dev     | 1e verdieping | `/icons/software-dev.svg`  |
+| `1e-av`        | Audio Visueel    | 1e verdieping | `/icons/audio-visueel.svg` |
+| `1e-ga`        | Game Artist      | 1e verdieping | `/icons/game-artist.svg`   |
+| `1e-mv`        | Media Vormgever  | 1e verdieping | `/icons/media-vormgever.svg`|
+| `1e-pet`       | Podium & Event   | 1e verdieping | `/icons/podium-event.svg`  |
+| `2e-mr`        | Media Redactie   | 2e verdieping | `/icons/media-redactie.svg`|
+| `2e-id`        | Immersive Design | 2e verdieping | `/icons/immersive-design.svg`|
+| `3e-left-top`  | Radio Studio     | 3e verdieping | `/icons/radio-studio.svg`  |
 
-**Praktisch voorbeeld:**  
-Je hebt in `building.js` `icon: '💻'` staan voor een lokaal. Daarna klikt iemand op de kaart en uploadt via de UI een eigen logo. De UI-instelling wint dan — de emoji uit de code is niet meer zichtbaar. Wis je het via 🗑 in de editor, dan komt de emoji uit de code weer terug.
-
----
-
-## 5. Emoji-palet uitbreiden (UI-kiezer)
-
-Het emoji-palet in de popup staat in één constante in `IndoorMap.jsx`.
-
-**Bestand:** `src/components/IndoorMap/IndoorMap.jsx`
-
-Zoek naar:
-
-```js
-const ROOM_ICONS = [
-  '🏫','📚','🎨','💻','🎵','🎬','🎙️','🎮',
-  '🔬','📝','📐','🎤','🎭','⚽','🍽️','📺',
-  // ...
-]
-```
-
-**Emoji toevoegen:** voeg hem toe aan de array:
-
-```js
-const ROOM_ICONS = [
-  '🏫','📚','🎨','💻',
-  // ... rest ...
-  '🧑‍💻','🪗','🛖',   // <-- hier toegevoegd
-]
-```
-
-**Emoji verwijderen:** haal hem gewoon uit de array.
-
-> Tip: gebruik emoji's die duidelijk zijn op klein formaat (~14 px).
+**Nieuw lokaal toevoegen aan de kaart:**  
+Voeg `iconSrc: '/icons/jouw-bestand.svg'` toe aan het kamer-object in `FLOOR_ROOMS` én voeg het lokaal toe aan `ALL_POIS` (zie sectie 4).
 
 ---
 
-## 6. Kamers verplaatsen of toevoegen (coördinaten)
+## 4. Routing-coördinaten aanpassen (jx / jy)
 
-**Bestand:** `src/components/IndoorMap/data/building.js`  
-**Object:** `FLOOR_ROOMS`
+De routing werkt via **POI-objecten** in `ALL_POIS` (in `building.js`).  
+Elk lokaal dat klikbaar moet zijn voor navigatie heeft een POI-object.
+
+```js
+{ id:'poi-sd', label:'Software Dev', icon:'💻', floor:1,
+  x:215, y:95,       // ← positie van de badge/markering op de kaart
+  jx:248, jy:195,    // ← route-ankerpunt: via welke punt gaat de route de gang in?
+  roomId:'1e-sd',    // ← koppeling met het kamer-object in FLOOR_ROOMS
+  category:'onderwijs', desc:'Software Development, lokaal 1.02', status:'vrij'
+},
+```
+
+### Velden uitgelegd
+
+| Veld     | Betekenis                                                              |
+|----------|------------------------------------------------------------------------|
+| `x`, `y` | Positie van de badge op de kaart (SVG-coördinaten 0–800, 0–686)        |
+| `jx`     | X-coördinaat van het **gang-ankerpunt** — waar de route de gang instapt |
+| `jy`     | *(optioneel)* Tussenpunt als de kamer een NS-gang gebruikt (Z-route)   |
+| `doorX`  | *(floor 3 only)* X-positie van de kamerdeur bij de diagonale gang      |
+| `roomId` | ID van het bijbehorende kamer-object in `FLOOR_ROOMS`                  |
+| `floor`  | Verdiepingsnummer (0 = begane grond, 1, 2, 3)                          |
+
+### Wanneer aanpassen?
+
+- **Route gaat door een muur** → pas `jx` aan zodat het gang-ankerpunt in de gang ligt.
+- **Lokaal staat op de verkeerde plek** → pas `x` en `y` aan.
+- **Route gaat via een Noord-Zuid-gang** → voeg `jy` toe (zie voorbeeld hieronder).
+
+### Voorbeeld: standaard L-route (kamer onder de gang)
+
+```
+Kamer (x,y)
+    │  ← stap 1: horizontaal naar jx
+    └──────►  (jx, y)
+              │  ← stap 2: omhoog naar de gang
+              ▼
+           (jx, corridorY)   ← dit is het gang-ankerpunt
+```
+
+### Voorbeeld: Z-route met `jy` (kamer boven een NS-gang, floor 1)
+
+```
+Kamer (x=215, y=95)
+    │  ← stap 1: omlaag naar jy=195 (onderkant van het kamerdeel)
+    ▼
+(215, 195)
+    │  ← stap 2: links naar jx=248 (NS-gang)
+    └────►  (248, 195)
+               │  ← stap 3: omlaag naar de main corridor
+               ▼
+           (248, 378)  ← corridorY voor floor 1
+```
+
+### Gang-Y per verdieping (niet aanpassen)
+
+| Verdieping | `CORRIDOR_Y` |
+|------------|-------------|
+| 0 — Begane grond | 378 |
+| 1 — 1e Verdieping | 378 |
+| 2 — 2e Verdieping | 475 |
+| 3 — 3e Verdieping | diagonaal (zie `FLOOR3_DIAG`) |
+
+---
+
+## 5. Lokaal verplaatsen of toevoegen
+
+**Bestand:** `src/components/IndoorMap/data/building.js` → `FLOOR_ROOMS`
 
 ### Het SVG-coördinatenstelsel
 
-De kaart is `800 × 686` SVG-eenheden groot.
-
 ```
-(0, 0) ─────────────────── (800, 0)
-  │                              │
-  │   x → (horizontaal)         │
-  │   y ↓ (verticaal)           │
-  │                              │
-(0, 686) ──────────────── (800, 686)
+(0, 0) ───────────────── (800, 0)
+  │   x → (horizontaal)       │
+  │   y ↓ (verticaal)         │
+(0, 686) ──────────── (800, 686)
 ```
 
-Elk kamer-object heeft de volgende velden:
+### Kamer-object velden
 
-| Veld      | Betekenis                                        | Voorbeeld |
-|-----------|--------------------------------------------------|-----------|
-| `id`      | Unieke naam (gebruik prefix per verdieping)      | `'1e-sd'` |
-| `type`    | Soort ruimte (zie tabel hieronder)               | `'room'`  |
-| `label`   | Naam die op de badge staat                       | `'Software Dev'` |
-| `x`       | Linkerrand van het blok                          | `5`       |
-| `y`       | Bovenrand van het blok                           | `5`       |
-| `w`       | Breedte (width)                                  | `350`     |
-| `h`       | Hoogte (height)                                  | `190`     |
-| `icon`    | *(optioneel)* Emoji als icoon                    | `'💻'`    |
-| `iconSrc` | *(optioneel)* Pad naar afbeelding in `/public`   | `'/icons/software.svg'` |
-
-Het badge-icoon verschijnt automatisch op het middelpunt van het blok:
-- midden-x = `x + w / 2`
-- midden-y = `y + h / 2`
-
-### Kamer verplaatsen
-
-Pas `x` en `y` aan:
-
-```js
-// Origineel:
-{ id: 'bg-nw1', type: 'room', x: 160, y: 0, w: 88, h: 77, label: 'Lokaal' },
-
-// 10 px naar rechts, 5 px naar beneden:
-{ id: 'bg-nw1', type: 'room', x: 170, y: 5, w: 88, h: 77, label: 'Lokaal' },
-```
-
-### Kamer groter of kleiner maken
-
-Pas `w` en/of `h` aan:
-
-```js
-{ id: 'bg-nw1', type: 'room', x: 160, y: 0, w: 100, h: 90, label: 'Lokaal' },
-```
+| Veld      | Betekenis                              | Voorbeeld           |
+|-----------|----------------------------------------|---------------------|
+| `id`      | Unieke naam (prefix per verdieping)    | `'1e-nieuw'`        |
+| `type`    | `'room'` / `'corridor'` / `'stairs'` / `'elevator'` | `'room'` |
+| `label`   | Naam op de badge                       | `'Lokaal 1.06'`     |
+| `x`       | Linkerrand van het blok                | `200`               |
+| `y`       | Bovenrand van het blok                 | `100`               |
+| `w`       | Breedte                                | `120`               |
+| `h`       | Hoogte                                 | `90`                |
+| `iconSrc` | *(optioneel)* Afbeeldingspad           | `'/icons/naam.svg'` |
+| `icon`    | *(optioneel)* Emoji-fallback           | `'🚪'`              |
 
 ### Nieuwe kamer toevoegen
 
-Voeg een nieuw object toe aan de array van de juiste verdieping:
-
 ```js
+// In FLOOR_ROOMS, verdieping 1:
 1: [
-  // bestaande kamers...
-  { id: '1e-nieuw', type: 'room', x: 500, y: 200, w: 80, h: 60, label: 'Nieuw lokaal', icon: '🚪' },
+  // ... bestaande kamers ...
+  {
+    id: '1e-nieuw',
+    type: 'room',
+    x: 500, y: 200, w: 100, h: 80,
+    label: 'Nieuw lokaal',
+    iconSrc: '/icons/nieuw.svg',   // optioneel
+  },
 ],
 ```
 
-> **Belangrijk:** het `id` moet **uniek** zijn over alle verdiepingen. Gebruik een duidelijke prefix.
+Voeg daarna ook een POI toe aan `ALL_POIS` als het lokaal navigeerbaar moet zijn:
 
-### Overzicht van verdiepingen en hun ID-prefixen
+```js
+{ id:'poi-nieuw', label:'Nieuw lokaal', icon:'🚪', floor:1,
+  x:550, y:240,    // centrum van de kamer
+  jx:550,          // gang-ankerpunt (pas aan zodat het in de gang ligt)
+  roomId:'1e-nieuw', category:'onderwijs', desc:'Beschrijving', status:'vrij'
+},
+```
 
-| Verdieping    | `id` in code | Prefix |
-|---------------|--------------|--------|
-| Begane grond  | `0`          | `bg-`  |
-| 1e Verdieping | `1`          | `1e-`  |
-| 2e Verdieping | `2`          | `2e-`  |
-| 3e Verdieping | `3`          | `3e-`  |
+---
 
-### Kamertypes
+## 6. Walkability — hoe de route door de gang gaat
 
-| `type`       | Wat het doet                                        |
-|--------------|-----------------------------------------------------|
-| `'room'`     | Krijgt een badge (✏️-icoon). Verschijnt in de lijst. |
-| `'corridor'` | Geen badge. Alleen voor routing.                    |
-| `'stairs'`   | Geen badge. Routering herkent dit als trap.         |
-| `'elevator'` | Geen badge. Routering herkent dit als lift.         |
+De routeplanner gebruikt twee systemen die samenwerken:
 
-### Alle beschikbare kamer-ID's
+### Systeem 1 — L-vormige ankerpunten (altijd actief)
 
-#### Begane grond (floor 0) — prefix `bg-`
+Op basis van de `jx`/`jy`-waarden in `ALL_POIS` berekent de router een vaste L-vormige route:  
+kamer → gang-ankerpunt → horizontaal door de gang → gang-ankerpunt bestemming → kamer.
 
-| Kamer-ID    | Lokaal / positie             | Huidig icoon |
-|-------------|------------------------------|--------------|
-| `bg-nw1`    | Noordwest blok 1             |              |
-| `bg-nw2`    | Noordwest blok 2             |              |
-| `bg-nw3`    | Noordwest blok 3             |              |
-| `bg-ne1`    | Noordoost blok 1             |              |
-| `bg-ne2`    | Noordoost blok 2             |              |
-| `bg-ne3`    | Noordoost blok 3             |              |
-| `bg-lw-o1`  | Links west buiten 1          |              |
-| `bg-lw-o2`  | Links west buiten 2          |              |
-| `bg-lw-o3`  | Links west buiten 3          |              |
-| `bg-lw-o4`  | Links west buiten 4          |              |
-| `bg-lw-i1`  | Links west binnen 1          |              |
-| `bg-lw-i2`  | Links west binnen 2          |              |
-| `bg-wc`     | Toiletten                    | 🚻           |
-| `bg-rn1`    | Rechterkant noord 1          |              |
-| `bg-rn2`    | Rechterkant noord 2          |              |
-| `bg-rn3`    | Kantine                      | 🍽️           |
-| `bg-rn4`    | Rechterkant noord 4          |              |
-| `bg-rn5`    | Rechterkant noord 5          |              |
-| `bg-rs1`    | Rechterkant zuid 1           |              |
-| `bg-rs2`    | Aula                         | 🎭           |
-| `bg-rs3`    | Rechterkant zuid 3           |              |
-| `bg-rs4`    | Rechterkant zuid 4           |              |
+Dit is de basisroute. Als er geen vloerkaart geladen is, wordt altijd deze route gebruikt.
 
-#### 1e Verdieping (floor 1) — prefix `1e-`
+### Systeem 2 — A\* walkability (geladen bij opstarten)
 
-| Kamer-ID    | Lokaal          | Huidig icoon |
-|-------------|-----------------|--------------|
-| `1e-sd`     | Software Dev    | 💻           |
-| `1e-av`     | Audio Visueel   | 🎬           |
-| `1e-ga`     | Game Artist     | 🎮           |
-| `1e-mv`     | Media Vormgever | 🎨           |
-| `1e-lokaal` | Lokaal 1.01     | 🚪           |
-| `1e-pet`    | Podium & Event  | 🎤           |
-| `1e-ss`     | Sign Specialist | 🖼️           |
+Bij het laden van de pagina worden de vloerplanafbeeldingen (`/maps/floor-0.png` t/m `floor-3.png`) pixel voor pixel geanalyseerd. Elke pixel wordt geclassificeerd als:
 
-#### 2e Verdieping (floor 2) — prefix `2e-`
+- **Loopbaar** (lichte pixels, gang/open ruimte) → A\* mag hier doorheen
+- **Geblokkeerd** (donkere pixels, kamerwanden) → A\* mijdt dit
 
-| Kamer-ID       | Lokaal            | Huidig icoon |
-|----------------|-------------------|--------------|
-| `2e-mr`        | Media Redactie    | 📰           |
-| `2e-cp`        | Creatieve Prod.   | 🎞️           |
-| `2e-id`        | Immersive Design  | 🥽           |
-| `2e-toiletten` | Toiletten         | 🚻           |
-| `2e-rv`        | Ruimtelijk VMG    | 🏗️           |
-| `2e-aam`       | All Around Media  | 📡           |
+De A\*-router verfijnt vervolgens de L-vormige route door tussenpunten in te voegen die de werkelijke ganggrenzen volgen.
 
-#### 3e Verdieping (floor 3) — prefix `3e-`
+### Instellingen aanpassen
 
-| Kamer-ID       | Lokaal          | Huidig icoon |
-|----------------|-----------------|--------------|
-| `3e-left-top`  | Radio Studio    | 🎙️           |
-| `3e-left-mid`  | Podcaststudio   | 🎧           |
-| `3e-right-top` | TV Studio       | 📺           |
-| `3e-right-mid` | Post-productie  | 🎞️           |
-| `3e-right-bot` | XR Lab          | 🥽           |
+**Bestand:** `src/components/IndoorMap/utils/walkability.js`
+
+```js
+export const CELL = 8         // rastergrootte in SVG-pixels (kleiner = nauwkeuriger, trager)
+const WALKABLE_MIN = 160      // drempelwaarde: pixels met gemiddelde RGB > 160 zijn loopbaar
+```
+
+| Instelling     | Standaard | Effect van verhogen | Effect van verlagen |
+|----------------|-----------|---------------------|---------------------|
+| `CELL`         | `8`       | Sneller, minder nauwkeurig | Nauwkeuriger, trager |
+| `WALKABLE_MIN` | `160`     | Alleen heldere gangen loopbaar (routes mijden donkere zones) | Meer ruimte loopbaar (routes kunnen door kamers snijden) |
+
+### Troubleshooting
+
+| Probleem | Oplossing |
+|----------|-----------|
+| Route gaat door een kamer | Verhoog `WALKABLE_MIN` (bijv. naar 175) |
+| Route vindt geen pad, gebruikt rechte lijn | Verlaag `WALKABLE_MIN` (bijv. naar 145) of controleer `jx`/`jy` van het POI |
+| Route in smalle gangetjes geblokkeerd | Verlaag `CELL` van 8 naar 6 voor fijner raster |
+| Route is erg hoekig | Dit is normaal — de A\* volgt het rastergrid exact om muren te vermijden |
+
+### Vloerkaartafbeeldingen
+
+De walkability wordt gebouwd uit de afbeeldingen in `public/maps/`:
+
+```
+public/maps/
+├── floor-0.png   ← begane grond
+├── floor-1.png   ← 1e verdieping
+├── floor-2.png   ← 2e verdieping
+└── floor-3.png   ← 3e verdieping
+```
+
+Deze afbeeldingen worden bij elke paginalading opnieuw geanalyseerd. Je hoeft niets te herstarten na aanpassingen.
 
 ---
 
 ## 7. CSS-klassen — badges per kamer stijlen
 
-Elke badge in de SVG krijgt automatisch klassen die je kunt gebruiken om specifieke kamers visueel aan te passen.
-
-### Welke klassen heeft een badge?
+Elke badge krijgt automatisch klassen voor eigen CSS-styling.
 
 ```
-.room-slot   .slot-bg-nw1   .floor-0
-    ↑               ↑            ↑
- alle badges   dit lokaal   deze verdieping
+.room-slot   .slot-1e-sd   .floor-1
+    ↑              ↑            ↑
+ alle badges  dit lokaal   deze verdieping
 ```
 
-| Klasse        | Selecteert                           | Voorbeeld                                  |
-|---------------|--------------------------------------|--------------------------------------------|
-| `.room-slot`  | Alle badges op alle verdiepingen     | `.room-slot { ... }`                       |
-| `.slot-{id}`  | Eén specifiek lokaal                 | `.slot-1e-sd { ... }`                      |
-| `.floor-{n}`  | Alle badges op één verdieping        | `.floor-1 { ... }`                         |
-| `.slot-rect`  | De achtergrondrechthoek van de badge | `.slot-1e-sd .slot-rect { fill: red; }`    |
-| `.slot-icon`  | Het icoon (emoji of afbeelding)      | `.slot-1e-sd .slot-icon { opacity: 0.8; }` |
-| `.slot-label` | De tekst in de badge                 | `.slot-1e-sd .slot-label { fill: yellow; }`|
+| Klasse        | Selecteert                            |
+|---------------|---------------------------------------|
+| `.room-slot`  | Alle badges                           |
+| `.slot-{id}`  | Één specifiek lokaal (bijv. `.slot-1e-sd`) |
+| `.floor-{n}`  | Alle badges op één verdieping         |
+| `.slot-rect`  | De achtergrondrechthoek van de badge  |
+| `.slot-icon`  | Het icoon (afbeelding of emoji)       |
+| `.slot-label` | De tekst onder het icoon              |
 
-### Hoe voeg je stijlen toe?
+### Eigen CSS toevoegen
 
-**Optie A — globaal CSS-bestand**
-
-Maak `src/room-stijlen.css` en importeer het in `main.jsx`:
+Maak `src/room-stijlen.css` en importeer het in `src/main.jsx`:
 
 ```css
 /* src/room-stijlen.css */
 
-/* Alle badges: iets dikkere rand */
-.room-slot .slot-rect {
-  stroke-width: 1.5;
+/* Kantine: gele badge */
+.slot-bg-rn3 .slot-rect {
+  fill: rgba(202, 138, 4, 0.85);
+  stroke: #fde68a;
 }
 
-/* Lokaal 1e-sd: blauwe badge */
-.slot-1e-sd .slot-rect {
+/* Alle badges 1e verdieping: blauwe tint */
+.floor-1 .slot-rect {
   fill: rgba(30, 64, 175, 0.85);
-  stroke: #93c5fd;
-}
-
-/* Alle badges op de 3e verdieping: paarse tint */
-.floor-3 .slot-rect {
-  fill: rgba(126, 34, 206, 0.82);
-  stroke: #d8b4fe;
 }
 ```
 
 ```js
 // src/main.jsx
-import './room-stijlen.css'   // <-- importeer het bestand
+import './room-stijlen.css'
 ```
-
-**Optie B — inline in IndoorMap.module.scss**
-
-Voeg onderaan het bestand toe:
-
-```scss
-// src/components/IndoorMap/IndoorMap.module.scss
-
-:global(.slot-bg-rs2) {
-  .slot-rect { fill: rgba(234, 179, 8, 0.82); stroke: #fde68a; }
-}
-```
-
-> Let op het `:global(...)` — zonder dat werkt het niet in CSS Modules.
 
 ---
 
-## 8. Bestaande POI-labels en iconen wijzigen
+## Snel overzicht
 
-POI's (de grotere, klikbare punten op de kaart zoals "Receptie" of "Kantine") staan apart gedefinieerd.
-
-**Bestand:** `src/components/IndoorMap/data/building.js`  
-**Object:** `ALL_POIS`
-
-```js
-{ id: 'poi-kantine', label: 'Kantine', icon: '🍽️', floor: 0, ... },
-//                   ^^^^^^^^^^^^^^^^         ^^^^^
-//                   naam in de UI            emoji op de kaart
-```
-
-### Velden die je kunt aanpassen
-
-| Veld     | Wat het doet                             | Voorbeeld               |
-|----------|------------------------------------------|-------------------------|
-| `label`  | Naam die in de UI en op de badge staat   | `'Mediakantine'`        |
-| `icon`   | Emoji op de kaartmarker                  | `'🥗'`                  |
-| `desc`   | Korte beschrijving in het detailkaartje  | `'Maandag–vrijdag open'`|
-| `status` | Kleurindicator op de kaart               | `'vrij'` / `'bezet'` / `'gesloten'` |
-| `x`, `y` | Positie van de markering op de kaart     | `x: 595, y: 289`        |
-
-> **Tip:** verander `x` en `y` als een markering op de verkeerde plek staat. De coördinaten zijn in SVG-eenheden (0–800 horizontaal, 0–686 verticaal).
-
----
-
-## Snel overzicht — welk bestand voor wat?
-
-| Wat wil je doen?                          | Hoe                                                           |
-|-------------------------------------------|---------------------------------------------------------------|
-| Lokaal een naam/icoon geven               | Klik op ✏️ op de kaart (geen code nodig)                      |
-| Lokaal een emoji geven via code           | `FLOOR_ROOMS` in `building.js` → `icon: '💻'`                |
-| Lokaal een eigen afbeelding geven via code| `FLOOR_ROOMS` in `building.js` → `iconSrc: '/icons/naam.svg'`|
-| Afbeelding uploaden via de browser        | Klik op ✏️ → tabblad "Eigen icoon" → 📁 Afbeelding kiezen…   |
-| Emoji-palet uitbreiden                    | `ROOM_ICONS` in `IndoorMap.jsx`                              |
-| Kamer verplaatsen / vergroten             | `FLOOR_ROOMS` in `building.js` → `x`, `y`, `w`, `h`         |
-| Nieuwe kamer toevoegen                    | `FLOOR_ROOMS` in `building.js` → nieuw object toevoegen      |
-| Badge-kleur of -stijl aanpassen           | Eigen CSS met `.slot-{id}` klassen                            |
-| POI-naam, icoon of status wijzigen        | `ALL_POIS` in `building.js`                                   |
+| Wat wil je doen?                       | Bestand            | Wat aanpassen                              |
+|----------------------------------------|--------------------|--------------------------------------------|
+| Icoon-foto wisselen                    | `public/icons/`    | Bestand vervangen (zelfde naam)            |
+| Icoon-pad wijzigen                     | `building.js`      | `iconSrc` in `FLOOR_ROOMS`                 |
+| Emoji als icoon instellen              | `building.js`      | `icon` in `FLOOR_ROOMS`                    |
+| Lokaal verplaatsen                     | `building.js`      | `x`, `y` in `FLOOR_ROOMS`                 |
+| Nieuw navigeerbaar lokaal toevoegen    | `building.js`      | Object in `FLOOR_ROOMS` + entry in `ALL_POIS` |
+| Route gaat door verkeerde gang         | `building.js`      | `jx` / `jy` in `ALL_POIS`                 |
+| Route gaat door muren                  | `walkability.js`   | `WALKABLE_MIN` verhogen                    |
+| Route vindt geen pad                   | `walkability.js`   | `WALKABLE_MIN` verlagen of `CELL` verkleinen |
+| Badge-kleur aanpassen                  | `room-stijlen.css` | `.slot-{id} .slot-rect { fill: ... }`      |

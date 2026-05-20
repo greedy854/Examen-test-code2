@@ -26,8 +26,6 @@ export default function MapCanvas({
   accessMode,
   // Room label slots
   roomSlots,
-  roomLabels,
-  onRoomSlotClick,
 }) {
   // Ref to the outer wrapper div — used to attach wheel and touch listeners
   const wrapRef  = useRef(null)
@@ -306,214 +304,101 @@ export default function MapCanvas({
             </g>
           ))}
 
-          {/* ── POI markers ────────────────────────────────────────── */}
-          {floorPois.map(poi => {
-            const isOrigin   = origin?.id      === poi.id
-            const isDest     = destination?.id  === poi.id
-            const isHov      = hoveredPoi?.id   === poi.id
-            const isTransit  = poi.category === 'transport'
-            // Amber/gold highlight for programme filter
-            const isProgramHL = Array.isArray(highlightPoiIds) && highlightPoiIds.includes(poi.id)
-
-            const r      = isOrigin || isDest ? 12 : isHov ? 10 : 8
-            const stroke = isOrigin ? '#4caf50' : isDest ? '#f44336'
-              : isProgramHL ? '#f59e0b'
-              : isTransit ? '#c060e0' : '#e040fb'
-            const fill   = isOrigin ? 'rgba(76,175,80,0.15)'
-              : isDest    ? 'rgba(244,67,54,0.15)'
-              : isProgramHL ? 'rgba(245,158,11,0.20)'
-              : isTransit ? 'rgba(192,96,224,0.12)'
-              : 'rgba(224,64,251,0.12)'
-
-            const lw = Math.max(poi.label.length * 5.8 + 14, 50)
-
-            return (
-              <g key={poi.id}
-                transform={`translate(${poi.x},${poi.y})`}
-                onClick={() => { if (!didDrag.current) onPoiClick(poi) }}
-                onMouseEnter={() => onPoiHover(poi)}
-                onMouseLeave={() => onPoiHover(null)}
-                style={{ cursor: 'pointer' }}>
-
-                {/* Outer expanding pulse — origin only, "you are here" signal */}
-                {isOrigin && (
-                  <circle className="pPulse2" r="22"
-                    fill="rgba(76,175,80,0.18)" stroke="#4caf50" strokeWidth="1"/>
-                )}
-
-                {(isOrigin || isDest) && (
-                  <circle className="pPulse" r="18"
-                    fill="none" stroke={stroke} strokeWidth="1.5"/>
-                )}
-
-                <circle r={r} fill={fill} stroke={stroke} strokeWidth="1.5"
-                  filter={isOrigin || isDest ? 'url(#glow)' : isProgramHL ? 'url(#glowAmber)' : undefined}/>
-
-                <text textAnchor="middle" dominantBaseline="central"
-                  fontSize={isOrigin || isDest ? '10' : '9'} dy="0.5"
-                  pointerEvents="none">
-                  {poi.icon}
-                </text>
-
-                {(isHov || isOrigin || isDest) && (
-                  <g transform="translate(0,-20)" pointerEvents="none">
-                    <rect x={-lw/2} y="-9" width={lw} height="16" rx="3"
-                      fill={isDark ? '#2a2a2a' : '#fff'}
-                      stroke={isOrigin ? '#4caf50' : isDest ? '#f44336' : '#e040fb'}
-                      strokeWidth="1"/>
-                    <text textAnchor="middle" y="0" dominantBaseline="central"
-                      fontSize="8"
-                      fill={isOrigin ? '#4caf50' : isDest ? '#f44336' : '#e040fb'}
-                      fontFamily="'DM Sans',sans-serif" fontWeight="600"
-                      pointerEvents="none">
-                      {poi.label}
-                    </text>
-                  </g>
-                )}
-
-                {/* "Je bent hier" badge — rendered last so it sits on top */}
-                {isOrigin && (
-                  <text
-                    textAnchor="middle"
-                    y="-46"
-                    fontSize="6.5"
-                    fill="#4caf50"
-                    fontFamily="'DM Sans',sans-serif"
-                    fontWeight="700"
-                    letterSpacing="0.04em"
-                    pointerEvents="none"
-                  >
-                    📍 Je bent hier
-                  </text>
-                )}
-              </g>
-            )
-          })}
-          {/* ── Room label slots ──────────────────────────────────────────── */}
-          {/* Small editable badge at the centre of every room block.
-              Click → floating text input in IndoorMap (via onRoomSlotClick).
-              Shows saved class name or a pencil icon when empty. */}
+          {/* ── Room badges — klikbaar, routing via building.js ──────────── */}
           {roomSlots && roomSlots.map(slot => {
-            // roomLabels: waarden opgeslagen via de UI-editor (localStorage)
-            // slot.icon / slot.iconSrc: statisch ingesteld in building.js
-            //
-            // Prioriteit (hoogste wint):
-            //   1. entry.iconUrl  → geüploade afbeelding via UI
-            //   2. entry.icon     → emoji gekozen via UI
-            //   3. slot.iconSrc   → afbeeldingspad in building.js
-            //   4. slot.icon      → emoji in building.js
-            //   5. ✏️ fallback
-            const entry    = roomLabels?.[slot.id]
-
-            // Bepaal wat er getoond wordt
-            let displayImgSrc = null
-            let displayEmoji  = null
-            if (entry?.iconUrl)         displayImgSrc = entry.iconUrl
-            else if (entry?.icon)       displayEmoji  = entry.icon
-            else if (slot.iconSrc)      displayImgSrc = slot.iconSrc
-            else if (slot.icon)         displayEmoji  = slot.icon
-
-            const label    = entry?.label ?? null
+            const displayImgSrc = slot.iconSrc ?? null
+            const displayEmoji  = !displayImgSrc ? (slot.icon ?? null) : null
+            const label    = slot.label ?? null
             const hasLabel = !!label
             const hasImg   = !!displayImgSrc
             const hasEmoji = !!displayEmoji
             const hasIcon  = hasImg || hasEmoji
-            const hasAny   = hasLabel || hasIcon
 
-            // Image size inside the badge (px in SVG units)
+            // Alleen tonen als er een icoon is ingesteld in building.js
+            if (!hasIcon) return null
+
+            // Zoek het bijbehorende POI-object op via roomId zodat klikken werkt
+            const matchedPoi = (pois || []).find(p => p.roomId === slot.id)
+            const isOrigin = origin?.id      === matchedPoi?.id
+            const isDest   = destination?.id === matchedPoi?.id
+            const isHov    = hoveredPoi?.id  === matchedPoi?.id
+
             const imgSz  = hasLabel ? 14 : 18
-
-            // Badge dimensions
-            const badgeH = hasIcon && hasLabel ? imgSz + 10   // icon row + label row
-                         : hasIcon             ? imgSz + 4    // icon only
-                         :                       16           // label only / empty
+            const badgeH = hasIcon && hasLabel ? imgSz + 10
+                         : hasIcon             ? imgSz + 4
+                         :                       14
             const badgeW = hasLabel
-              ? Math.max(label.length * 3.6 + (hasIcon ? 20 : 10), hasIcon ? imgSz + 14 : 30)
-              : hasIcon ? imgSz + 8 : 28
+              ? Math.max(label.length * 3.6 + (hasIcon ? 20 : 10), hasIcon ? imgSz + 14 : 28)
+              : imgSz + 8
             const bx = -badgeW / 2
             const by = -badgeH / 2
 
-            // Every badge gets three classes you can target in CSS / SCSS:
-            //   .room-slot          → all badges on all floors
-            //   .slot-<id>          → this specific room  (e.g. .slot-bg-nw1)
-            //   .floor-<n>          → all badges on floor n  (e.g. .floor-0)
-            const cls = `room-slot slot-${slot.id} floor-${floor}`
+            // Kleur van de rand: groen = startpunt, rood = bestemming, blauw = normaal
+            const borderColor = isOrigin ? '#4caf50' : isDest ? '#f44336' : isHov ? '#a5f3fc' : '#93c5fd'
+            const bgColor     = isOrigin ? 'rgba(76,175,80,0.88)'
+                              : isDest   ? 'rgba(220,38,38,0.88)'
+                              :            'rgba(30,100,220,0.82)'
+            const borderWidth = isOrigin || isDest ? 1.5 : 0.75
+
             return (
               <g
                 key={slot.id}
-                className={cls}
-                data-slot={slot.id}
+                className={`room-slot slot-${slot.id} floor-${floor}`}
                 transform={`translate(${slot.x},${slot.y})`}
-                style={{ cursor: 'pointer' }}
-                onClick={(e) => { if (!didDrag.current) onRoomSlotClick?.(slot.id, e) }}
+                style={{ cursor: matchedPoi ? 'pointer' : 'default' }}
+                onClick={() => {
+                  if (!didDrag.current && matchedPoi) onPoiClick(matchedPoi)
+                }}
+                onMouseEnter={() => matchedPoi && onPoiHover(matchedPoi)}
+                onMouseLeave={() => matchedPoi && onPoiHover(null)}
               >
-                {/* Badge pill */}
+                {/* Pulse-ring rond geselecteerde badge */}
+                {(isOrigin || isDest) && (
+                  <circle className="pPulse" r={badgeW * 0.7}
+                    fill="none" stroke={borderColor} strokeWidth="1.2" opacity="0.7"/>
+                )}
+
                 <rect
                   className="slot-rect"
-                  x={bx}
-                  y={by}
-                  width={badgeW}
-                  height={badgeH}
-                  rx="4"
-                  fill={hasAny ? 'rgba(30,100,220,0.82)' : 'rgba(80,80,100,0.5)'}
-                  stroke={hasAny ? '#93c5fd' : '#aaa'}
-                  strokeWidth="0.75"
+                  x={bx} y={by} width={badgeW} height={badgeH} rx="4"
+                  fill={bgColor} stroke={borderColor} strokeWidth={borderWidth}
+                  filter={isOrigin || isDest ? 'url(#glow)' : undefined}
                 />
-
-                {/* Afbeelding of SVG-pad (iconUrl uit UI of iconSrc uit building.js) */}
                 {hasImg && (
                   <image
                     className="slot-icon"
                     href={displayImgSrc}
-                    x={-imgSz / 2}
-                    y={hasLabel ? by + 2 : -imgSz / 2}
-                    width={imgSz}
-                    height={imgSz}
+                    x={-imgSz / 2} y={hasLabel ? by + 2 : -imgSz / 2}
+                    width={imgSz} height={imgSz}
                     preserveAspectRatio="xMidYMid meet"
                     style={{ imageRendering: 'crisp-edges' }}
-                    pointerEvents="none"
                   />
                 )}
-
-                {/* Emoji (gekozen via UI of ingesteld in building.js) */}
                 {hasEmoji && (
                   <text
                     className="slot-icon"
-                    textAnchor="middle"
-                    dominantBaseline="central"
+                    textAnchor="middle" dominantBaseline="central"
                     fontSize={hasLabel ? '9' : '11'}
                     y={hasLabel ? by + 9 : 0}
-                    pointerEvents="none"
                   >{displayEmoji}</text>
                 )}
-
-                {/* Label text — shown below icon (or centred when no icon) */}
                 {hasLabel && (
                   <text
                     className="slot-label"
-                    textAnchor="middle"
-                    dominantBaseline="central"
-                    fontSize="5.5"
-                    fill="#fff"
-                    fontFamily="'DM Sans',sans-serif"
-                    fontWeight="600"
+                    textAnchor="middle" dominantBaseline="central"
+                    fontSize="5.5" fill="#fff"
+                    fontFamily="'DM Sans',sans-serif" fontWeight="600"
                     y={hasIcon ? by + badgeH - 5 : 0}
-                    pointerEvents="none"
                   >{label}</text>
                 )}
 
-                {/* Fallback pencil when nothing is set */}
-                {!hasAny && (
-                  <text
-                    className="slot-label"
-                    textAnchor="middle"
-                    dominantBaseline="central"
-                    fontSize="6.5"
-                    fill="#fff"
-                    fontFamily="'DM Sans',sans-serif"
-                    fontWeight="400"
+                {/* "Je bent hier" label boven het startpunt-badge */}
+                {isOrigin && (
+                  <text textAnchor="middle" y={by - 5}
+                    fontSize="6" fill="#4caf50"
+                    fontFamily="'DM Sans',sans-serif" fontWeight="700"
                     pointerEvents="none"
-                  >✏️</text>
+                  >📍 Je bent hier</text>
                 )}
               </g>
             )

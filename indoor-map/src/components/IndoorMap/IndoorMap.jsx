@@ -13,64 +13,26 @@ const GRID_POIS = ALL_POIS.filter((p) => p.category !== "transport");
 // ── Feature 2: Study programmes filter ────────────────────────────────────────
 // Maps programme ids to metadata; 'all' shows every POI
 const PROGRAMMES = [
-  { id: "all", label: "Alles", icon: "🔍", pois: [] },
-  {
-    id: "audio",
-    label: "Audio & Podcast",
-    icon: "🎙️",
-    pois: ["poi-radio", "poi-pod", "poi-av", "poi-pet"],
-  },
-  {
-    id: "video",
-    label: "Video & Film",
-    icon: "🎬",
-    pois: ["poi-tv", "poi-post", "poi-cp"],
-  },
-  {
-    id: "design",
-    label: "Design & Media",
-    icon: "🎨",
-    pois: ["poi-mv", "poi-mr", "poi-rv", "poi-id", "poi-aam"],
-  },
-  {
-    id: "tech",
-    label: "Tech & ICT",
-    icon: "💻",
-    pois: ["poi-sd", "poi-ga", "poi-xr"],
-  },
-  {
-    id: "events",
-    label: "Events & Live",
-    icon: "🎤",
-    pois: ["poi-pet", "poi-aula", "poi-ss"],
-  },
+  { id: "all",    label: "Alles",           icon: "🔍", pois: [] },
+  { id: "audio",  label: "Audio & Podcast",  icon: "🎙️", pois: ["poi-radio", "poi-av", "poi-pet"] },
+  { id: "design", label: "Design & Media",   icon: "🎨", pois: ["poi-mv", "poi-mr", "poi-id"] },
+  { id: "tech",   label: "Tech & ICT",       icon: "💻", pois: ["poi-sd", "poi-ga"] },
+  { id: "events", label: "Events & Live",    icon: "🎤", pois: ["poi-pet", "poi-aula"] },
 ];
 
 // ── Feature 3: Surprise facts ────────────────────────────────────────────────
 // Fun facts shown as toast messages when the user clicks "Verras me"
 const SURPRISE_FACTS = {
-  "poi-radio":
-    "Wist je dat hier de schoolradio van Mediacollege Amsterdam wordt opgenomen? 🎙️",
-  "poi-tv":
-    "In deze TV-studio worden echte televisieprogramma's gemaakt door studenten! 📺",
-  "poi-pod": "In de podcaststudio kun je straks je eigen podcast opnemen. 🎧",
-  "poi-xr":
-    "Het XR Lab heeft de nieuwste VR- en AR-apparatuur — probeer het vandaag uit! 🥽",
-  "poi-aula":
-    "De aula biedt ruimte aan 400 mensen. Veel grote schoolfeesten vinden hier plaats. 🎭",
-  "poi-kantine":
-    "De kantine serveert elke dag verse broodjes en een dagschotel voor studenten. 🍽️",
-  "poi-sd":
-    "Software developers bij Mediacollege bouwen apps voor echte klanten. 💻",
-  "poi-ga": "Game Artists ontwerpen hier personages en werelden voor games. 🎮",
-  "poi-pet":
-    "Podium & Evenementen Techniek leert je live shows en festivals te begeleiden. 🎤",
-  "poi-mr":
-    "Media Redactie studenten produceren content voor echte media-outlets. 📰",
-  "poi-post":
-    "In de post-productie studio leer je video editing en color grading. 🎞️",
-  "poi-id":
-    "Immersive Designers creëren ervaringen voor musea, festivals en meer. 🥽",
+  "poi-radio":   "Wist je dat hier de schoolradio van Mediacollege Amsterdam wordt opgenomen? 🎙️",
+  "poi-aula":    "De aula biedt ruimte aan 400 mensen. Veel grote schoolfeesten vinden hier plaats. 🎭",
+  "poi-kantine": "De kantine serveert elke dag verse broodjes en een dagschotel voor studenten. 🍽️",
+  "poi-sd":      "Software developers bij Mediacollege bouwen apps voor echte klanten. 💻",
+  "poi-av":      "Audio Visueel Design — hier leer je video, geluid en animatie combineren. 🎬",
+  "poi-ga":      "Game Artists ontwerpen hier personages en werelden voor games. 🎮",
+  "poi-mv":      "Media Vormgevers ontwerpen visuele communicatie voor echte opdrachtgevers. 🎨",
+  "poi-pet":     "Podium & Evenementen Techniek leert je live shows en festivals te begeleiden. 🎤",
+  "poi-mr":      "Media Redactie studenten produceren content voor echte media-outlets. 📰",
+  "poi-id":      "Immersive Designers creëren ervaringen voor musea, festivals en meer. 🥽",
 };
 
 // ── Feature 5: Translations ──────────────────────────────────────────────────
@@ -228,12 +190,8 @@ function pickDemoRoute() {
 // The tour routes from stop[n] to stop[n+1] and advances when the user taps "Ik ben er".
 const TOUR_STOPS = [
   {
-    id: "poi-receptie",
-    tip: "Welkom bij Mediacollege Amsterdam! 👋 Start je rondleiding hier bij de receptie — haal hier een sticker en een plattegrond op.",
-  },
-  {
     id: "poi-kantine",
-    tip: "Dit is de kantine, open van 08:00–17:00. 🍽️ Perfect voor een broodje of koffie tussendoor op een open dag.",
+    tip: "Welkom bij Mediacollege Amsterdam! 🍽️ Start je rondleiding hier bij de kantine — open van 08:00–17:00.",
   },
   {
     id: "poi-aula",
@@ -242,6 +200,10 @@ const TOUR_STOPS = [
   {
     id: "poi-pet",
     tip: "Podium & Evenementen Techniek op de 1e verdieping. 🎤 Hier leer je live shows en festivals technisch te begeleiden.",
+  },
+  {
+    id: "poi-sd",
+    tip: "Software Development op de 1e verdieping. 💻 Studenten hier bouwen apps voor echte klanten.",
   },
   {
     id: "poi-radio",
@@ -1004,48 +966,6 @@ function HelpModal({ onClose, lang }) {
   );
 }
 
-// ── Room slot icon palette ────────────────────────────────────────────────────
-// Emojis shown in the icon picker when editing a room badge.
-// Click one to assign it as the room's icon; click ✕ to clear the icon.
-const ROOM_ICONS = [
-  '🏫','📚','🎨','💻','🎵','🎬','🎙️','🎮',
-  '🔬','📝','📐','🎤','🎭','⚽','🍽️','📺',
-  '🖥️','🎧','📷','🎞️','🖨️','🔧','🗂️','💡',
-  '🏆','🎯','📡','🧪','🖼️','🎻','📸','🛠️',
-]
-
-/**
- * Converts an uploaded image File to a compact base64 data-URL.
- * SVG files are stored as-is; raster images (PNG/JPG/…) are scaled down
- * to at most MAX×MAX px on a canvas so localStorage stays lean.
- */
-async function fileToIconUrl(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onerror = reject
-    reader.onload = (ev) => {
-      // SVGs are text — keep the full data-URL without resizing
-      if (file.type === 'image/svg+xml') {
-        resolve(ev.target.result)
-        return
-      }
-      // Raster: draw onto an offscreen canvas at ≤64 px
-      const MAX = 64
-      const img = new Image()
-      img.onerror = reject
-      img.onload  = () => {
-        const scale   = Math.min(MAX / img.width, MAX / img.height, 1)
-        const canvas  = document.createElement('canvas')
-        canvas.width  = Math.round(img.width  * scale)
-        canvas.height = Math.round(img.height * scale)
-        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
-        resolve(canvas.toDataURL('image/png', 0.92))
-      }
-      img.src = ev.target.result
-    }
-    reader.readAsDataURL(file)
-  })
-}
 
 // ── Main component ────────────────────────────────────────────────────────────
 // Root component for the indoor map application — manages all state and renders the full UI
@@ -1226,28 +1146,6 @@ export default function IndoorMap() {
   // Whether the help / feature-explanation popup is open
   const [showHelp, setShowHelp] = useState(false);
 
-  // ── Room class labels ─────────────────────────────────────────────────────────
-  // Map of slot-id → { label?: string, icon?: string }, persisted to localStorage.
-  // Old format (plain string values) is auto-migrated to { label } on first load.
-  // editingSlot holds { id, screenX, screenY } while the editor popup is open.
-  // editingIcon tracks which emoji is currently selected inside the open popup.
-  const [roomLabels, setRoomLabels] = useState(() => {
-    try {
-      const stored = JSON.parse(localStorage.getItem('mA-room-labels') ?? '{}')
-      // Migrate old string values → { label } objects
-      const migrated = {}
-      for (const [k, v] of Object.entries(stored)) {
-        migrated[k] = typeof v === 'string' ? { label: v } : v
-      }
-      return migrated
-    } catch { return {} }
-  });
-  const [editingSlot, setEditingSlot] = useState(null);
-  const [editingIcon, setEditingIcon] = useState(null);      // emoji string | null
-  const [editingIconUrl, setEditingIconUrl] = useState(null); // base64 data-URL | null
-  const [iconTab, setIconTab] = useState('emoji');            // 'emoji' | 'image'
-  const editInputRef  = useRef(null);
-  const iconUploadRef = useRef(null); // hidden <input type="file">
 
   // ── Walkability maps (corridor-only routing) ──────────────────────────────────
   // One Uint8Array per floor, built from the floor plan image at startup.
@@ -1398,74 +1296,6 @@ export default function IndoorMap() {
     const transport = accessMode ? 'elevator' : 'stairs';
     setRoute(computeRoute(origin.id, destination.id, { lang, transport, walkMaps }));
   }, [walkMaps]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // ── Room label handlers ──────────────────────────────────────────────────────
-  // Opens the floating label editor for a room slot. screenX/Y come from the
-  // click event so we can position the popup right where the user tapped.
-  // Pre-loads any existing icon so the picker shows the current selection.
-  const handleRoomSlotClick = useCallback((slotId, e) => {
-    e.stopPropagation();
-    const entry       = roomLabels[slotId]
-    const curIcon     = typeof entry === 'object' ? (entry?.icon    ?? null) : null
-    const curIconUrl  = typeof entry === 'object' ? (entry?.iconUrl ?? null) : null
-    setEditingIcon(curIcon)
-    setEditingIconUrl(curIconUrl)
-    // Open on the tab that matches the stored icon type
-    setIconTab(curIconUrl ? 'image' : 'emoji')
-    setEditingSlot({ id: slotId, screenX: e.clientX, screenY: e.clientY });
-  }, [roomLabels]);
-
-  // Saves (or removes) a label + icon entry and closes the editor.
-  // icon    = emoji string or null
-  // iconUrl = base64 data-URL for a custom image/SVG, or null
-  const saveRoomLabel = useCallback((slotId, label, icon, iconUrl) => {
-    setRoomLabels(prev => {
-      const next = { ...prev };
-      if (label || icon || iconUrl) {
-        const entry = {}
-        if (label)   entry.label   = label
-        if (icon)    entry.icon    = icon
-        if (iconUrl) entry.iconUrl = iconUrl
-        next[slotId] = entry
-      } else {
-        delete next[slotId];
-      }
-      localStorage.setItem('mA-room-labels', JSON.stringify(next));
-      return next;
-    });
-    setEditingSlot(null);
-  }, []);
-
-  // Handles a file chosen in the "Eigen icoon" tab.
-  // Converts the file to a base64 data-URL (resizing raster images) and
-  // stores it in editingIconUrl so the badge preview and save can use it.
-  const handleIconUpload = useCallback(async (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    if (file.size > 2 * 1024 * 1024) {
-      showToast('❌ Bestand te groot (max 2 MB)')
-      e.target.value = ''
-      return
-    }
-    try {
-      const url = await fileToIconUrl(file)
-      setEditingIconUrl(url)
-    } catch {
-      showToast('❌ Bestand kon niet worden geladen')
-    }
-    e.target.value = '' // reset so same file can be re-selected
-  }, [showToast])
-
-  // Clears everything (label + icon) for a slot and closes the editor.
-  const clearRoomLabel = useCallback((slotId) => {
-    setRoomLabels(prev => {
-      const next = { ...prev };
-      delete next[slotId];
-      localStorage.setItem('mA-room-labels', JSON.stringify(next));
-      return next;
-    });
-    setEditingSlot(null);
-  }, []);
 
   // ── Toast ────────────────────────────────────────────────────────────────────
   // Shows a temporary toast message that disappears after 2.5 seconds
@@ -1844,8 +1674,6 @@ export default function IndoorMap() {
                 highlightPoiIds={highlightPoiIds}
                 accessMode={accessMode}
                 roomSlots={ROOM_SLOTS[floor]}
-                roomLabels={roomLabels}
-                onRoomSlotClick={handleRoomSlotClick}
               />
             </div>
             <div className={styles.floorCol}>
@@ -2201,120 +2029,6 @@ export default function IndoorMap() {
           Floating editor that appears when user clicks a room slot badge.
           Two tabs: emoji picker OR upload eigen afbeelding/SVG.
           Positioned at the click coordinates via fixed layout.                */}
-      {editingSlot && (
-        <div className={styles.roomLabelPopup} style={{
-          left: Math.min(editingSlot.screenX, window.innerWidth - 280),
-          top:  Math.max(editingSlot.screenY - 56, 8),
-        }}>
-          <span className={styles.roomLabelTitle}>Klas / lokaal</span>
-
-          {/* ── Tab switcher ────────────────────────────────────────────── */}
-          <div className={styles.roomIconTabs}>
-            <button
-              className={`${styles.roomIconTab} ${iconTab === 'emoji' ? styles.roomIconTabActive : ''}`}
-              onMouseDown={(e) => { e.preventDefault(); setIconTab('emoji'); setEditingIconUrl(null) }}
-            >Emoji</button>
-            <button
-              className={`${styles.roomIconTab} ${iconTab === 'image' ? styles.roomIconTabActive : ''}`}
-              onMouseDown={(e) => { e.preventDefault(); setIconTab('image'); setEditingIcon(null) }}
-            >Eigen icoon</button>
-          </div>
-
-          {/* ── Emoji tab ───────────────────────────────────────────────── */}
-          {iconTab === 'emoji' && (
-            <div className={styles.roomIconGrid}>
-              <button
-                className={`${styles.roomIconBtn} ${editingIcon === null ? styles.roomIconBtnActive : ''}`}
-                onMouseDown={(e) => { e.preventDefault(); setEditingIcon(null) }}
-                title="Geen icoon"
-              >✕</button>
-              {ROOM_ICONS.map(ic => (
-                <button
-                  key={ic}
-                  className={`${styles.roomIconBtn} ${editingIcon === ic ? styles.roomIconBtnActive : ''}`}
-                  onMouseDown={(e) => { e.preventDefault(); setEditingIcon(ic) }}
-                  title={ic}
-                >{ic}</button>
-              ))}
-            </div>
-          )}
-
-          {/* ── Eigen icoon tab ─────────────────────────────────────────── */}
-          {iconTab === 'image' && (
-            <div className={styles.roomImageUpload}>
-              {/* Hidden file input — triggered by the button below */}
-              <input
-                ref={iconUploadRef}
-                type="file"
-                accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml"
-                style={{ display: 'none' }}
-                onChange={handleIconUpload}
-              />
-
-              {editingIconUrl ? (
-                /* Preview of the uploaded icon */
-                <div className={styles.roomImagePreview}>
-                  <img
-                    src={editingIconUrl}
-                    alt="Icoon voorbeeld"
-                    className={styles.roomImagePreviewImg}
-                  />
-                  <button
-                    className={styles.roomImageClear}
-                    onMouseDown={(e) => { e.preventDefault(); setEditingIconUrl(null) }}
-                  >✕ Verwijderen</button>
-                </div>
-              ) : (
-                /* Upload trigger button */
-                <button
-                  className={styles.roomImageUploadBtn}
-                  onMouseDown={(e) => { e.preventDefault(); iconUploadRef.current?.click() }}
-                >
-                  📁 Afbeelding kiezen…
-                </button>
-              )}
-
-              <span className={styles.roomImageHint}>
-                PNG, JPG, GIF of SVG — max 2 MB
-              </span>
-            </div>
-          )}
-
-          {/* ── Label input + action buttons ─────────────────────────────── */}
-          <div className={styles.roomLabelRow}>
-            <input
-              ref={editInputRef}
-              className={styles.roomLabelInput}
-              type="text"
-              defaultValue={roomLabels[editingSlot.id]?.label ?? ''}
-              placeholder="bijv. 3.01 — Media"
-              autoFocus
-              onKeyDown={(e) => {
-                if (e.key === 'Enter')  saveRoomLabel(editingSlot.id, e.target.value.trim(), editingIcon, editingIconUrl)
-                if (e.key === 'Escape') setEditingSlot(null)
-              }}
-            />
-            <button
-              className={styles.roomLabelSave}
-              onMouseDown={(e) => { e.preventDefault(); saveRoomLabel(editingSlot.id, editInputRef.current?.value.trim() ?? '', editingIcon, editingIconUrl) }}
-              title="Opslaan"
-            >✓</button>
-            <button
-              className={styles.roomLabelDelete}
-              onMouseDown={(e) => { e.preventDefault(); clearRoomLabel(editingSlot.id) }}
-              title="Alles verwijderen"
-            >🗑</button>
-          </div>
-        </div>
-      )}
-
-      {/* Dismiss room label editor when clicking outside */}
-      {editingSlot && (
-        <div
-          style={{ position: 'fixed', inset: 0, zIndex: 498 }}
-          onClick={() => saveRoomLabel(editingSlot.id, editInputRef.current?.value.trim() ?? '', editingIcon, editingIconUrl)}
-        />
-      )}
 
       {/* Toast */}
       {toastMsg && (

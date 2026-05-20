@@ -453,9 +453,9 @@ export function computeRoute(originId, destinationId, options = {}) {
       if (!path || path.length < 2) continue   // fallback: keep original segment
 
       // Insert the intermediate A* waypoints (skip first and last — already added)
-      const simplified = simplifyPath(path, m)
-      for (let k = 1; k < simplified.length - 1; k++) {
-        refined.push({ x: simplified[k].x, y: simplified[k].y, floor: wp.floor, astar: true })
+      // simplifyPath disabled: raw A* cells volgen de gang exact zonder muren te snijden
+      for (let k = 1; k < path.length - 1; k++) {
+        refined.push({ x: path[k].x, y: path[k].y, floor: wp.floor, astar: true })
       }
     }
     // Swap in the refined waypoints

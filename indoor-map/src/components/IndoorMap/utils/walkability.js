@@ -10,13 +10,14 @@
  */
 
 // Grid resolution in SVG units (800×686).  Smaller = more accurate but slower.
-export const CELL = 12          // 12 SVG px per grid cell
-export const COLS = Math.ceil(800 / CELL)  // 67
-export const ROWS = Math.ceil(686 / CELL)  // 58
+export const CELL = 8           // 8 SVG px per grid cell — fijner raster, smalle gangen blijven zichtbaar
+export const COLS = Math.ceil(800 / CELL)  // 100
+export const ROWS = Math.ceil(686 / CELL)  // 86
 
 // Luminance threshold: cells with avg-RGB above this are walkable.
-// Floor plans use ~211 for open areas and ~53 for large enclosed spaces.
-const WALKABLE_MIN = 140
+// Floor plans use ~190+ for open corridors, ~100-155 for dark room interiors.
+// 160 keeps transition zones (lichte rand tussen kamer en gang) loopbaar.
+const WALKABLE_MIN = 160
 
 /**
  * Build a walkability bitmap for one floor from a loaded <img> element.
@@ -43,24 +44,7 @@ export function buildMapFromImage(img) {
     }
   }
 
-  // Erode blocked cells by 1 cell so paths keep margin from walls
-  const eroded = new Uint8Array(map)
-  for (let gy = 0; gy < ROWS; gy++) {
-    for (let gx = 0; gx < COLS; gx++) {
-      if (map[gy * COLS + gx] === 0) {
-        // Mark 8-neighbours as blocked too
-        for (let dy = -1; dy <= 1; dy++) {
-          for (let dx = -1; dx <= 1; dx++) {
-            const ny = gy + dy, nx = gx + dx
-            if (ny >= 0 && ny < ROWS && nx >= 0 && nx < COLS) {
-              eroded[ny * COLS + nx] = 0
-            }
-          }
-        }
-      }
-    }
-  }
-  return eroded
+  return map
 }
 
 // Convert SVG coords → grid cell (clamped)
@@ -124,7 +108,7 @@ export function astar(map, startX, startY, endX, endY) {
 
   let iterations = 0
 
-  while (open.size > 0 && iterations < 20000) {
+  while (open.size > 0 && iterations < 60000) {
     iterations++
     // Pick node with lowest f
     let best = null
