@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
+import html2canvas from "html2canvas";
 import { buildMapFromImage } from "./utils/walkability";
 import { QRCodeSVG } from "qrcode.react";
 import { ALL_POIS, FLOORS, CATEGORIES, ROOM_SLOTS } from "./data/building";
@@ -721,6 +722,8 @@ function TourBanner({ tourStep, onNext, onCancel }) {
 // with that room pre-set as the starting point.
 function QRModal({ onClose }) {
   const base = `${window.location.origin}${window.location.pathname}`;
+  const gridRef = useRef(null);
+  const [downloading, setDownloading] = useState(false);
 
   function handlePrint() {
     document.body.classList.add("printing-qr");
@@ -728,6 +731,24 @@ function QRModal({ onClose }) {
       document.body.classList.remove("printing-qr");
     }, { once: true });
     window.print();
+  }
+
+  async function handleDownload() {
+    if (!gridRef.current) return;
+    setDownloading(true);
+    try {
+      const canvas = await html2canvas(gridRef.current, {
+        backgroundColor: "#ffffff",
+        scale: 2,
+        useCORS: true,
+      });
+      const link = document.createElement("a");
+      link.download = "qr-codes.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    } finally {
+      setDownloading(false);
+    }
   }
 
   return createPortal(
@@ -751,6 +772,13 @@ function QRModal({ onClose }) {
           </div>
           <div className={styles.qrModalActions}>
             <button
+              className={styles.qrDownloadBtn}
+              onClick={handleDownload}
+              disabled={downloading}
+            >
+              {downloading ? "⏳ Bezig…" : "⬇️ Download"}
+            </button>
+            <button
               className={styles.qrPrintBtn}
               onClick={handlePrint}
             >
@@ -763,7 +791,7 @@ function QRModal({ onClose }) {
         </div>
 
         {/* Grid of QR codes */}
-        <div className={styles.qrGrid}>
+        <div ref={gridRef} className={styles.qrGrid}>
           {GRID_POIS.map((poi) => {
             const url = `${base}?hier=${poi.id}`;
             const floor = FLOORS.find((f) => f.id === poi.floor);

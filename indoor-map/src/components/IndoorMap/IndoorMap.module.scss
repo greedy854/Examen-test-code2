@@ -1435,6 +1435,23 @@ $red:    #f44336;
   align-items: flex-start;
 }
 
+// "⬇️ Download" button in the QR modal
+.qrDownloadBtn {
+  padding: 0.4375em 1em;
+  border: 0.094em solid #26a69a;
+  border-radius: 1.25em;
+  background: #26a69a;
+  color: #fff;
+  font-size: 0.75em;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 120ms;
+  white-space: nowrap;
+  &:hover:not(:disabled) { background: #00796b; border-color: #00796b; }
+  &:disabled { opacity: 0.6; cursor: default; }
+}
+
 // "🖨️ Print alles" button in the QR modal
 .qrPrintBtn {
   padding: 0.4375em 1em;
