@@ -46,6 +46,12 @@
   --sheet-bg:       #1c1c1c;
 }
 
+/* When the QR print modal is open, hide the main app so only the QR grid prints */
+@media print {
+  body.printing-qr #root { display: none !important; }
+  body.printing-qr #qr-print-root { display: block !important; }
+}
+
 /* Base styles for the page: full height, themed background/text, smooth font rendering */
 html, body, #root {
   width: 100%;

@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
+import { createPortal } from "react-dom";
 import { buildMapFromImage } from "./utils/walkability";
 import { QRCodeSVG } from "qrcode.react";
 import { ALL_POIS, FLOORS, CATEGORIES, ROOM_SLOTS } from "./data/building";
@@ -719,11 +720,19 @@ function TourBanner({ tourStep, onNext, onCancel }) {
 // Each QR code encodes a URL with ?hier=[poi-id] so scanning it opens the map
 // with that room pre-set as the starting point.
 function QRModal({ onClose }) {
-  // Base URL of the app (works in both dev and production)
   const base = `${window.location.origin}${window.location.pathname}`;
 
-  return (
+  function handlePrint() {
+    document.body.classList.add("printing-qr");
+    window.addEventListener("afterprint", () => {
+      document.body.classList.remove("printing-qr");
+    }, { once: true });
+    window.print();
+  }
+
+  return createPortal(
     <div
+      id="qr-print-root"
       className={styles.qrOverlay}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
@@ -743,7 +752,7 @@ function QRModal({ onClose }) {
           <div className={styles.qrModalActions}>
             <button
               className={styles.qrPrintBtn}
-              onClick={() => window.print()}
+              onClick={handlePrint}
             >
               🖨️ Print alles
             </button>
@@ -775,7 +784,8 @@ function QRModal({ onClose }) {
           })}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
